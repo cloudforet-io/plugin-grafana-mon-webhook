@@ -11,4 +11,4 @@ class Event(BaseAPI, event_pb2_grpc.EventServicer):
         params, metadata = self.parse_request(request, context)
 
         with self.locator.get_service('EventService', metadata) as event_service:
-            return self.locator.get_info('EventInfo', event_service.parse(params))
+            return self.locator.get_info('EventsInfo', event_service.parse(params))
