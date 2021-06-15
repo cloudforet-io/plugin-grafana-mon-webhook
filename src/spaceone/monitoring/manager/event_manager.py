@@ -18,9 +18,8 @@ class EventManager(BaseManager):
         default_parsed_data = []
 
         eval_match_values = raw_data.get('evalMatches', [])
-
+        occurred_at = datetime.now()
         for eval_match_value in eval_match_values:
-            occurred_at = datetime.now()
             target_types, title, instance_id = self._get_alarm_title_type(raw_data, eval_match_value)
             event_key = self._get_event_key(raw_data, occurred_at, instance_id)
             event_resource = self._get_resource_for_event(eval_match_value, {}, target_types)
@@ -32,48 +31,16 @@ class EventManager(BaseManager):
                 'description': raw_data.get('message', ''),
                 'title': title,
                 'rule': self._get_rule_for_event(raw_data),
-                'occurred_at': occurred_at,
                 'tags': self._get_tags(raw_data)
             }
 
             _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
-
             event_result_model = EventModel(event_vo, strict=False)
             event_result_model.validate()
-            default_parsed_data.append(event_result_model.to_primitive())
+            event_result_model_primitive = event_result_model.to_primitive()
+            event_result_model_primitive.update({'occurred_at': occurred_at})
+            default_parsed_data.append(event_result_model_primitive)
 
-        """
-            {"dashboardId":10,
-             "evalMatches":[
-                {
-                    "metric":"plugin-30d21ef75a5d-bqjgfouoehjujkclb-77c9d6867f-qzmx6",
-                    "tags":{
-                        "pod":"plugin-30d21ef75a5d-bqjgfouoehjujkclb-77c9d6867f-qzmx6"
-                    },
-                    "value":1
-                },
-                {
-                    "metric":"plugin-30d21ef75a5d-bqjgfouoehjujkclb-77c9d6867f-znkn8",
-                    "tags":{
-                        "pod":"plugin-30d21ef75a5d-bqjgfouoehjujkclb-77c9d6867f-znkn8"
-                    },
-                    "value":1
-                }
-            ],
-            "imageUrl":"https://grafana.stargate.cloudeco.io/public/img/attachments/LTqROznKoFqum8G0JK7F.png",
-            "message":"[cloudone-dev-v1-eks-cluster] Not Running Pods 0 is OK\n\nFailure level : WorkerNode\nPanel : Not Running Pods 0:OK\nDataSource : Prometheus\nResource : pod\nThreshold : not running pod count > 0 , every 5m , for 5m",
-            "orgId":1,
-            "panelId":58,
-            "ruleId":57,
-            "ruleName":"Not Running Pods 0:OK alert",
-            "ruleUrl":"https://grafana.stargate.cloudeco.io/d/uZaspace/spaceone-dev-cluster-alerts-dashboard?tab=alert&viewPanel=58&orgId=1",
-            "state":"alerting",
-            "tags":{
-            },
-            "title":"[Alerting] Not Running Pods 0:OK alert"
-        }
-        
-        """
         return default_parsed_data
 
     @staticmethod
