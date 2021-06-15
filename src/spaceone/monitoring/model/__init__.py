@@ -1,1 +1,1 @@
-from spaceone.monitoring.model.even_response_model import *
+from spaceone.monitoring.model.event_response_model import *
