@@ -41,7 +41,7 @@ class TestEvent(TestCase):
                     "title": "[Alerting] Not Running Pods 0:OK alert"
                     }
 
-        parsed_data = self.monitoring.Event.parse({'options': options, 'raw_data': raw_data})
+        parsed_data = self.monitoring.Event.parse({'options': options, 'data': raw_data})
         print_json(parsed_data)
 
 

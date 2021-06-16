@@ -16,7 +16,7 @@ class EventService(BaseService):
 
 
     @transaction
-    @check_required(['options', 'raw_data'])
+    @check_required(['options', 'data'])
     def parse(self, params):
         """Get Google StackDriver metric data
 
@@ -30,6 +30,6 @@ class EventService(BaseService):
             plugin_metric_data_response (dict)
         """
         options = params.get('options')
-        raw_data = params.get('raw_data')
+        raw_data = params.get('data')
         parsed_event = self.event_mgr.parse(options, raw_data)
         return parsed_event
