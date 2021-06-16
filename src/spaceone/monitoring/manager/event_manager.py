@@ -20,7 +20,8 @@ class EventManager(BaseManager):
 
         for eval_match_value in eval_match_values:
             target_types, title, instance_id = self._get_alarm_title_type(raw_data, eval_match_value)
-            event_key = self._get_event_key(raw_data, occurred_at, instance_id)
+
+            event_key = self._get_event_key(raw_data,  occurred_at, instance_id)
             event_resource = self._get_resource_for_event(eval_match_value, {}, target_types)
 
             event_vo = {
@@ -36,7 +37,6 @@ class EventManager(BaseManager):
             }
 
             _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
-            print(event_vo)
             event_result_model = EventModel(event_vo, strict=False)
             event_result_model.validate()
             event_result_model_primitive = event_result_model.to_native()
@@ -49,7 +49,7 @@ class EventManager(BaseManager):
         return raw_data.get('ruleName')
 
     @staticmethod
-    def _get_event_key(raw_data, instance_id, occurred_at):
+    def _get_event_key(raw_data, occurred_at, instance_id):
         dashboard_id = raw_data.get('dashboardId')
         panel_id = raw_data.get('panelId')
         rule_id = raw_data.get('ruleId')
@@ -57,7 +57,9 @@ class EventManager(BaseManager):
 
         if isinstance(occurred_at, datetime):
             occurred_at_timestamp = str(occurred_at.timestamp())
-            indexed_unique_key = int(occurred_at_timestamp) // _INTERVAL_IN_SECONDS * 100
+            _occurred_at_timestamp = occurred_at_timestamp[:occurred_at_timestamp.find('.')]
+            str_to_int = float(_occurred_at_timestamp) if len(_occurred_at_timestamp) > 10 else int(_occurred_at_timestamp)
+            indexed_unique_key = int(str_to_int) // _INTERVAL_IN_SECONDS * 100
 
         raw_event_key = f'{dashboard_id}:{panel_id}:{rule_id}:{instance_id}:{indexed_unique_key}'
         hash_object = hashlib.md5(raw_event_key.encode())
