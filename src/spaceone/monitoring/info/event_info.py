@@ -17,7 +17,7 @@ def EventInfo(event_Info_data: EventModel):
         'resource': change_struct_type(event_Info_data['resource']),
         'rule': event_Info_data.get('rule'),
         'occurred_at': utils.datetime_to_iso8601(event_Info_data.get('occurred_at')),
-        'tags': change_struct_type(event_Info_data.get('tags'))
+        'additional_info': change_struct_type(event_Info_data.get('additional_info'))
     }
     return event_pb2.EventInfo(**info)
 
