@@ -20,6 +20,6 @@ class EventModel(Model):
     resource = ModelType(ResourceModel)
     rule = StringType(default='')
     occurred_at = DateTimeType()
-    tags = DictType(StringType(), default={})
+    additional_info = DictType(StringType(), default={})
 
 

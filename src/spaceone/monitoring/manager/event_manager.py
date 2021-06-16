@@ -32,10 +32,11 @@ class EventManager(BaseManager):
                 'title': title,
                 'occurred_at': occurred_at,
                 'rule': self._get_rule_for_event(raw_data),
-                'tags': self._get_tags(raw_data)
+                'additional_info': self._get_additional_info(raw_data)
             }
 
             _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
+            print(event_vo)
             event_result_model = EventModel(event_vo, strict=False)
             event_result_model.validate()
             event_result_model_primitive = event_result_model.to_native()
@@ -81,7 +82,7 @@ class EventManager(BaseManager):
         return default_severity_flag
 
     @staticmethod
-    def _get_tags(raw_data):
+    def _get_additional_info(raw_data):
         tags = {}
 
         if 'imageUrl' in raw_data:
@@ -121,7 +122,6 @@ class EventManager(BaseManager):
         if not tags:
             return '' if not target_types else '&'.join(target_types), 'No title', ''
         else:
-
             instance_id = None
             for idx, tag in enumerate(tags):
                 if idx == 0:
