@@ -6,19 +6,23 @@ from spaceone.monitoring.model.event_response_model import EventModel
 
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL_IN_SECONDS = 600
-
+_EXCEPTION_TO_PASS = ["Test notification", "null", "Null"]
 
 class EventManager(BaseManager):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
     def parse(self, options, raw_data):
+        # check test notification for skip
+        #"ruleName": "Test notification", "title": "[Alerting] Test notification", "ruleUrl": "https://grafana.stargate.cloudeco.io/"
         default_parsed_data = []
-
         eval_match_values = raw_data.get('evalMatches', [])
         occurred_at = datetime.now()
 
         for eval_match_value in eval_match_values:
+            if raw_data.get('ruleName') in _EXCEPTION_TO_PASS and self._is_invalid_to_proceed(eval_match_value):
+                continue
+
             target_types, title, instance_id = self._get_alarm_title_type(raw_data, eval_match_value)
 
             event_key = self._get_event_key(raw_data,  occurred_at, instance_id)
@@ -116,18 +120,35 @@ class EventManager(BaseManager):
         return event_resource
 
     @staticmethod
-    def _get_alarm_title_type(raw_data, eval_value):
-        alarm_name = raw_data.get('title', '')
-        tags = eval_value.get('tags', {})
-        target_types = []
+    def _check_test_notification(raw_data):
+        notification_state_to_process = False
+        rule_name = raw_data.get('ruleName')
+        if rule_name in _EXCEPTION_TO_PASS:
+            notification_state_to_process = True
+        return notification_state_to_process
 
-        if not tags:
-            return '' if not target_types else '&'.join(target_types), 'No title', ''
+    @staticmethod
+    def _is_invalid_to_proceed(eval_value):
+        tags = eval_value.get('tags')
+        is_invalid = True
+
+        if tags is None or tags in _EXCEPTION_TO_PASS:
+            pass
         else:
-            instance_id = None
-            for idx, tag in enumerate(tags):
-                if idx == 0:
-                    instance_id = tags.get(tag)
-                target_types.append(tag)
+            is_invalid = False
 
-            return '' if not target_types else '&'.join(target_types), f'[{instance_id}]: {alarm_name}', instance_id
+        return is_invalid
+
+    @staticmethod
+    def _get_alarm_title_type_instance_id(raw_data, eval_value):
+        tags = eval_value.get('tags', {})
+        title = raw_data.get('title', '')
+        target_types = []
+        instance_id = None
+
+        for idx, tag in enumerate(tags):
+            if idx == 0:
+                instance_id = tags.get(tag)
+            target_types.append(tag)
+
+        return '' if len(target_types) == 0 else '&'.join(target_types), title, instance_id
