@@ -7,20 +7,11 @@ from google.protobuf.json_format import MessageToDict
 _LOGGER = logging.getLogger(__name__)
 
 
-class TestWebHookAWSSNS(TestCase):
+class TestWebhook(TestCase):
 
     def test_init(self):
-        v_info = self.monitroing.Webhook.init({'options': {}})
+        v_info = self.monitoring.Webhook.init({'options': {}})
         print_json(v_info)
 
     def test_verify(self):
-        options = {}
-        self.monitroing.Webhook.verify({'options': options})
-
-    def test_parse(self):
-        options = {}
-        raw_data = {}
-        self.monitroing.Event.parse({
-            'options': options,
-            'raw_data': raw_data
-        })
+        self.monitoring.Webhook.verify({'options': {}})

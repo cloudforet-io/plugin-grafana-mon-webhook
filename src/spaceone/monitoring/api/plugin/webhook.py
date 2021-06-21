@@ -11,7 +11,7 @@ class Webhook(BaseAPI, webhook_pb2_grpc.WebhookServicer):
         params, metadata = self.parse_request(request, context)
 
         with self.locator.get_service('WebhookService', metadata) as webhook_service:
-            return self.locator.get_info('PluginInfo', webhook_service.init(params))
+            return self.locator.get_info('WebhookPluginInfo', webhook_service.init(params))
 
     def verify(self, request, context):
         params, metadata = self.parse_request(request, context)
