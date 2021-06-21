@@ -32,5 +32,4 @@ class EventService(BaseService):
         options = params.get('options')
         raw_data = params.get('data')
         parsed_event = self.event_mgr.parse(options, raw_data)
-        if parsed_event is not None:
-            return parsed_event
+        return parsed_event
