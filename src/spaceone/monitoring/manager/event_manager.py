@@ -13,20 +13,19 @@ class EventManager(BaseManager):
         super().__init__(*args, **kwargs)
 
     def parse(self, options, raw_data):
+
         # check test notification for skip
         #"ruleName": "Test notification", "title": "[Alerting] Test notification", "ruleUrl": "https://grafana.stargate.cloudeco.io/"
+
         default_parsed_data = []
         eval_match_values = raw_data.get('evalMatches', [])
         occurred_at = datetime.now()
 
         for eval_match_value in eval_match_values:
-            if raw_data.get('ruleName') in _EXCEPTION_TO_PASS and self._is_invalid_to_proceed(eval_match_value):
-                continue
-
-            target_types, title, instance_id = self._get_alarm_title_type(raw_data, eval_match_value)
+            target_types, title, instance_id = self._get_alarm_title_type_instance_id(raw_data, eval_match_value)
 
             event_key = self._get_event_key(raw_data,  occurred_at, instance_id)
-            event_resource = self._get_resource_for_event(eval_match_value, {}, target_types)
+            event_resource = self._get_resource_for_event(eval_match_value, {}, target_types, instance_id, raw_data)
 
             event_vo = {
                 'event_key': event_key,
@@ -106,16 +105,27 @@ class EventManager(BaseManager):
         return tags
 
     @staticmethod
-    def _get_resource_for_event(eval_value, event_resource, resource_type):
+    def _get_resource_for_event(eval_value, event_resource, resource_type, instance_id, raw_data):
         tags = eval_value.get('tags', {})
-        for idx, tag in enumerate(tags):
-            if idx == 0:
-                event_id = tags.get(tag)
+        if tags is None:
+            dashboard_id = str(raw_data.get('dashboardId', ''))
+            panel_id = str(raw_data.get('panelId', ''))
+            org_id = str(raw_data.get('orgId', ''))
+            _instance_id = f'{dashboard_id}{panel_id}{org_id}'
+            if instance_id == _instance_id:
                 event_resource.update({
+                    'resource_id': f'[{resource_type}], Dashboard ID: {dashboard_id}, Panel ID: {panel_id}',
                     'resource_type': resource_type,
-                    'resource_id': event_id
                 })
-                break
+        else:
+            for idx, tag in enumerate(tags):
+                if idx == 0:
+                    event_id = tags.get(tag)
+                    event_resource.update({
+                        'resource_type': resource_type,
+                        'resource_id': event_id
+                    })
+                    break
 
         return event_resource
 
@@ -145,10 +155,16 @@ class EventManager(BaseManager):
         title = raw_data.get('title', '')
         target_types = []
         instance_id = None
+        if tags is None:
+            dashboard_id = str(raw_data.get('dashboardId', ''))
+            panel_id = str(raw_data.get('panelId', ''))
+            org_id = str(raw_data.get('orgId', ''))
+            instance_id = f'{dashboard_id}{panel_id}{org_id}'
+            return 'UNKNOWN', title, instance_id
+        else:
+            for idx, tag in enumerate(tags):
+                if idx == 0:
+                    instance_id = tags.get(tag)
+                target_types.append(tag)
 
-        for idx, tag in enumerate(tags):
-            if idx == 0:
-                instance_id = tags.get(tag)
-            target_types.append(tag)
-
-        return '' if len(target_types) == 0 else '&'.join(target_types), title, instance_id
+            return '' if len(target_types) == 0 else '&'.join(target_types), title, instance_id
