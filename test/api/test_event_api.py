@@ -1,10 +1,8 @@
 import logging
 import unittest
 import os
-import json
 from spaceone.core.unittest.runner import RichTestRunner
 from spaceone.tester import TestCase, print_json
-from pprint import pprint
 
 _LOGGER = logging.getLogger(__name__)
 TEST_JSON = os.environ.get('test_json', None)
@@ -93,12 +91,45 @@ class TestEvent(TestCase):
             }
         }
 
-        parsed_data = self.monitoring.Event.parse({'options': {}, 'data': params1.get('data')})
-        print_json(parsed_data)
-        parsed_data = self.monitoring.Event.parse({'options': {}, 'data': params2.get('data')})
-        print_json(parsed_data)
-        parsed_data = self.monitoring.Event.parse({'options': {}, 'data': params3.get('data')})
-        print_json(parsed_data)
+        params4 = {
+            "options": {
+
+            },
+            "data": {
+                "ruleId": 22.0,
+                "orgId": 1.0,
+                "ruleName": "API Server Request Latency TEMP",
+                "dashboardId": 10.0,
+                "message": "Temporary test Webhook\n- API Server Request Latency",
+                "imageUrl": "https://grafana.stargate.cloudeco.io/public/img/attachments/qmNDGfjVSyG53lu9RmOb.png",
+                "evalMatches": [
+                    {
+                        "tags": {
+                            "pod": "plugin-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9",
+                            "LB": "plugin-grafana-monitoring-webhook-rajbcnsjbhjszvfv-jps-8b84876q9wq9"
+                        },
+                        "metric": "plugin-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9",
+                        "value": 0.15384615384615385
+                    }
+                ],
+                "title": "[Alerting] API Server Request Latency TEMP",
+                "tags": {
+
+                },
+                "panelId": 102.0,
+                "state": "alerting",
+                "ruleUrl": "https://grafana.stargate.cloudeco.io/d/uZaspace/spaceone-dev-cluster-alerts-dashboard?tab=alert&viewPanel=102&orgId=1"
+            }
+        }
+
+        test_cases = [params1, params2, params3, params4]
+
+        for idx, test_case in enumerate(test_cases):
+            print(f'###### {idx} ########')
+            parsed_data = self.monitoring.Event.parse({'options': {}, 'data': test_case.get('data')})
+            print_json(parsed_data)
+            print()
+
 
 
 if __name__ == "__main__":

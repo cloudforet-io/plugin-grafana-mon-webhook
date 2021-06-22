@@ -25,50 +25,41 @@ class EventManager(BaseManager):
         title = raw_data.get('title', '')
         rule_name = raw_data.get('ruleName', '')
         # Check Eval Matched Value is Empty
+        event_vo = {
+            'event_key': event_key,
+            'event_type': event_type,
+            'severity': severity,
+            'title': title,
+            'rule': rule_name,
+            'resource': {},
+            'description': description,
+            'occurred_at': occurred_at,
+            'additional_info': self._get_additional_info(raw_data)
+        }
 
-        if len(eval_match_values) == 0:
-
-            event_vo = {
-                'event_key': event_key,
-                'event_type': event_type,
-                'severity': severity,
-                'title': title,
-                'rule': rule_name,
-                'resource': {},
-                'description': description,
-                'occurred_at': occurred_at,
-                'additional_info': self._get_additional_info(raw_data)
-            }
-
+        if not raw_data:
+            pass
+        elif len(eval_match_values) == 0:
             _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
-            event_result_model = EventModel(event_vo, strict=False)
-            event_result_model.validate()
-            event_result_model_primitive = event_result_model.to_native()
-            default_parsed_data.append(event_result_model_primitive)
-
+            self._check_validity_and_append(default_parsed_data, event_vo)
         else:
-
             for eval_match_value in eval_match_values:
-
-                event_resource = self._get_resource_for_event(eval_match_value, raw_data)
-
-                event_vo = {
-                    'event_key': event_key,
-                    'event_type': self._get_event_type(raw_data),
-                    'severity': self._get_severity(raw_data),
-                    'title': title,
-                    'rule': rule_name,
-                    'description': description,
-                    'resource': event_resource,
-                    'occurred_at': occurred_at,
-                    'additional_info': self._get_additional_info(raw_data)
-                }
-
-                _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
-                event_result_model = EventModel(event_vo, strict=False)
-                event_result_model.validate()
-                event_result_model_primitive = event_result_model.to_native()
-                default_parsed_data.append(event_result_model_primitive)
+                if self._check_required_to_parse(eval_match_value):
+                    tags_dict = eval_match_value.get('tags')
+                    for tag_dict in tags_dict:
+                        inner_resource = {
+                            'name': f'[{tag_dict}]:{tags_dict.get(tag_dict)}',
+                            'resource_type': tag_dict,
+                            'resource_id': tags_dict.get(tag_dict)
+                        }
+                        event_vo.update({'resource': inner_resource})
+                        _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
+                        self._check_validity_and_append(default_parsed_data, event_vo)
+                else:
+                    event_resource = self._get_resource_for_event(eval_match_value, raw_data)
+                    event_vo.update({'resource': event_resource})
+                    _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
+                    self._check_validity_and_append(default_parsed_data, event_vo)
 
         return default_parsed_data
 
@@ -144,18 +135,27 @@ class EventManager(BaseManager):
             event_resource.update({'name': 'unavailable resource'})
         else:
             resource_types = [tag for tag in tags]
-            for idx, tag in enumerate(tags):
-                if idx == 0:
-                    resource_id = tags.get(tag)
-                    resource_type = tag
-                    event_resource.update({
-                        'name': f'[{resource_type}]:{resource_id}',
-                        'resource_type': '&'.join(resource_types),
-                        'resource_id': resource_id
-                    })
-                    break
+            resource_values = [t for t in tags.values()]
+            _resource_types_str = '&'.join(resource_types) if len(resource_types) > 0 else ''
+            event_resource.update({
+                'name': f'[{_resource_types_str}]:{resource_values[0]}',
+                'resource_type': _resource_types_str,
+                'resource_id': resource_values[0]
+            })
 
         return event_resource
+
+    @staticmethod
+    def _check_required_to_parse(eval_value):
+        required_to_mimic = False
+        tags = eval_value.get('tags')
+        if tags is None:
+            pass
+        else:
+            resource_values = [t for t in tags.values()]
+            if len(resource_values) > 1 and len(resource_values) != resource_values.count(resource_values[0]):
+                required_to_mimic = True
+        return required_to_mimic
 
     @staticmethod
     def _check_test_notification(raw_data):
@@ -164,3 +164,10 @@ class EventManager(BaseManager):
         if rule_name in _EXCEPTION_TO_PASS:
             notification_state_to_process = True
         return notification_state_to_process
+
+    @staticmethod
+    def _check_validity_and_append(append_list, check_data):
+        event_result_model = EventModel(check_data, strict=False)
+        event_result_model.validate()
+        event_result_model_primitive = event_result_model.to_native()
+        append_list.append(event_result_model_primitive)
