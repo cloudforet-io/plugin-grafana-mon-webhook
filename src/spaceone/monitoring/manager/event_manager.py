@@ -1,9 +1,10 @@
 import logging
 import hashlib
+from spaceone.core import utils
 from datetime import datetime
 from spaceone.core.manager import BaseManager
 from spaceone.monitoring.model.event_response_model import EventModel
-
+from spaceone.monitoring.error.event import *
 _LOGGER = logging.getLogger(__name__)
 _INTERVAL_IN_SECONDS = 600
 _EXCEPTION_TO_PASS = ["Test notification"]
@@ -16,51 +17,69 @@ class EventManager(BaseManager):
     def parse(self, options, raw_data):
 
         default_parsed_data = []
-        eval_match_values = raw_data.get('evalMatches', [])
-        occurred_at = datetime.now()
-        event_key = self._get_event_key(raw_data, occurred_at)
-        event_type = self._get_event_type(raw_data)
-        severity = self._get_severity(raw_data)
-        description = raw_data.get('message', '')
-        title = raw_data.get('title', '')
-        rule_name = raw_data.get('ruleName', '')
-        # Check Eval Matched Value is Empty
-        event_vo = {
-            'event_key': event_key,
-            'event_type': event_type,
-            'severity': severity,
-            'title': title,
-            'rule': rule_name,
-            'resource': {},
-            'description': description,
-            'occurred_at': occurred_at,
-            'additional_info': self._get_additional_info(raw_data)
-        }
 
-        if not raw_data:
-            pass
-        elif len(eval_match_values) == 0:
-            _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
-            self._check_validity_and_append(default_parsed_data, event_vo)
-        else:
-            for eval_match_value in eval_match_values:
-                if self._check_required_to_parse(eval_match_value):
-                    tags_dict = eval_match_value.get('tags')
-                    for tag_dict in tags_dict:
-                        inner_resource = {
-                            'name': f'[{tag_dict}]:{tags_dict.get(tag_dict)}',
-                            'resource_type': tag_dict,
-                            'resource_id': tags_dict.get(tag_dict)
-                        }
-                        event_vo.update({'resource': inner_resource})
+        try:
+            eval_match_values = raw_data.get('evalMatches', [])
+            occurred_at = datetime.now()
+            event_key = self._get_event_key(raw_data, occurred_at)
+            event_type = self._get_event_type(raw_data)
+            severity = self._get_severity(raw_data)
+            description = raw_data.get('message', '')
+            title = raw_data.get('title', '')
+            rule_name = raw_data.get('ruleName', '')
+            # Check Eval Matched Value is Empty
+
+            event_vo = {
+                'event_key': event_key,
+                'event_type': event_type,
+                'severity': severity,
+                'title': title,
+                'rule': rule_name,
+                'resource': {},
+                'description': description,
+                'occurred_at': occurred_at,
+                'additional_info': self._get_additional_info(raw_data)
+            }
+
+            if len(eval_match_values) == 0:
+                _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
+                self._check_validity_and_append(default_parsed_data, event_vo)
+            else:
+                for eval_match_value in eval_match_values:
+                    if self._check_required_to_parse(eval_match_value):
+                        tags_dict = eval_match_value.get('tags')
+                        for tag_dict in tags_dict:
+                            inner_resource = {
+                                'name': f'[{tag_dict}]:{tags_dict.get(tag_dict)}',
+                                'resource_type': tag_dict,
+                                'resource_id': tags_dict.get(tag_dict)
+                            }
+                            event_vo.update({'resource': inner_resource})
+                            _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
+                            self._check_validity_and_append(default_parsed_data, event_vo)
+                    else:
+                        event_resource = self._get_resource_for_event(eval_match_value, raw_data)
+                        event_vo.update({'resource': event_resource})
                         _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
                         self._check_validity_and_append(default_parsed_data, event_vo)
-                else:
-                    event_resource = self._get_resource_for_event(eval_match_value, raw_data)
-                    event_vo.update({'resource': event_resource})
-                    _LOGGER.debug(f'[EventManager] parse Event : {event_vo}')
-                    self._check_validity_and_append(default_parsed_data, event_vo)
 
+        except Exception as e:
+            generated = utils.generate_id('grafana', 4)
+            hash_object = hashlib.md5(generated.encode())
+            md5_hash = hash_object.hexdigest()
+            error_message = repr(e)
+            event_vo = {
+                'event_key': md5_hash,
+                'event_type': 'ALERT',
+                'severity': 'CRITICAL',
+                'resource': {},
+                'description': error_message,
+                'title': 'Grafana Parsing ERROR',
+                'rule': '',
+                'occurred_at': datetime.now(),
+                'additional_info': {}
+            }
+            self._check_validity_and_append(default_parsed_data, event_vo)
         return default_parsed_data
 
     @staticmethod
@@ -70,6 +89,19 @@ class EventManager(BaseManager):
         rule_id = raw_data.get('ruleId')
         org_id = raw_data.get('orgId')
         indexed_unique_key = None
+
+        if dashboard_id is None:
+            raise ERROR_REQUIRED_FIELDS(field='dashboard_id')
+
+        if panel_id is None:
+            raise ERROR_REQUIRED_FIELDS(field='panel_id')
+
+        if rule_id is None:
+            raise ERROR_REQUIRED_FIELDS(field='rule_id')
+
+        if org_id is None:
+            raise ERROR_REQUIRED_FIELDS(field='org_id')
+
 
         if isinstance(occurred_at, datetime):
             occurred_at_timestamp = str(occurred_at.timestamp())

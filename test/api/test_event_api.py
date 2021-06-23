@@ -121,8 +121,14 @@ class TestEvent(TestCase):
                 "ruleUrl": "https://grafana.stargate.cloudeco.io/d/uZaspace/spaceone-dev-cluster-alerts-dashboard?tab=alert&viewPanel=102&orgId=1"
             }
         }
+        params5 = {"options": {
 
-        test_cases = [params1, params2, params3, params4]
+            },
+            "data": {}
+
+        }
+        #params1, params2, params3, params4,
+        test_cases = [params5]
 
         for idx, test_case in enumerate(test_cases):
             print(f'###### {idx} ########')
