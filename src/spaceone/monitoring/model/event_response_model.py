@@ -7,7 +7,6 @@ __all__ = ['EventModel']
 class ResourceModel(Model):
     resource_id = StringType(serialize_when_none=False)
     name = StringType(serialize_when_none=False)
-    ip_address = StringType(serialize_when_none=False)
     resource_type = StringType(serialize_when_none=False)
 
 
