@@ -70,7 +70,7 @@ class EventManager(BaseManager):
             error_message = repr(e)
             event_vo = {
                 'event_key': md5_hash,
-                'event_type': 'ALERT',
+                'event_type': 'ERROR',
                 'severity': 'CRITICAL',
                 'resource': {},
                 'description': error_message,
