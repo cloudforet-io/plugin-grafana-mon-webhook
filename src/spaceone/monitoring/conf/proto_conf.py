@@ -1,4 +1,4 @@
 PROTO = {
-    'spaceone.monitoring.api.plugin.webhook': ['Webhook'],
-    'spaceone.monitoring.api.plugin.event': ['Event'],
+    'spaceone.monitoring.interface.grpc.webhook': ['Webhook'],
+    'spaceone.monitoring.interface.grpc.event': ['Event'],
 }
