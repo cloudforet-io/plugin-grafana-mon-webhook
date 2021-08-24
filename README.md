@@ -59,6 +59,7 @@ Webhook notification: https://grafana.com/docs/grafana/latest/alerting/old-alert
 | description: <str> | raw_data.message	| Database xxxxxx		|
 | severity: <str>    | alert level based raw_data.state (alerting  -> ALERT, ok -> RECOVERY, no_dat -> NONE | ALERT	|
 | resource: <dict>   | Not used		| N/A	|
+| raw_data: <dict>   | Grafana Raw Data | {"title": "Database Size Alert", "dashboardId": 1, ... } |
 | addtional_info: <dict> | raw_data.dashboardID, raw_data.orgID, raw_data.imageUrl, raw_data.ruleUrl, raw_data.evalMatches, raw_data.tags 	| {"org_id": "1.0", "rule_url": "https://...." } |
 | occured_at: <datetime> | webhook received time | "2021-08-23T06:47:32.753Z" |
 | alert_id: <str>	| mapped alert_id	| alert-3243434343 |
