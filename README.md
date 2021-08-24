@@ -17,6 +17,7 @@ Webhook notification: https://grafana.com/docs/grafana/latest/alerting/old-alert
       "tags": {}
     }
   ],
+  "ruleUrl": "https://grafana.stargate.cloudeco.io/d/6eRS6XR7k/spaceone-dev-cluster-alerts-dashboard-20210621-backup?tab=alert&viewPanel=14&orgId=1",
   "imageUrl": "https://grafana.com/assets/img/blog/mixed_styles.png",
   "message": "Notification Message",
   "orgId": 1,
