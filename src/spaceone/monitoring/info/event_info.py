@@ -7,7 +7,6 @@ __all__ = ['EventInfo', 'EventsInfo']
 
 
 def EventInfo(event_Info_data: EventModel):
-
     info = {
         'event_key': event_Info_data['event_key'],
         'event_type': event_Info_data['event_type'],

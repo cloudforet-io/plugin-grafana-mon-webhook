@@ -73,22 +73,16 @@ class TestEvent(TestCase):
 
             },
             "data": {
-                "evalMatches": [
-                    {
-                        "value": 445.61538461538464,
-                        "metric": "Count ",
-                        "tags": {}
-                    }
-                ],
-                "panelId": 3.0,
-                "state": "alerting",
-                "tags": {},
-                "dashboardId": 58.0,
-                "ruleName": "Collections alert",
-                "ruleId": 95.0,
+                "evalMatches": [],
+                "dashboardId": 44.0,
+                "panelId": 14.0,
                 "orgId": 1.0,
-                "title": "[Alerting] Collections alert",
-                "ruleUrl": "https://grafana.stargate.cloudeco.io/d/9tvNgo77k/mongodb-database-details_copy-20210818?tab=alert&viewPanel=3&orgId=1"
+                "ruleName": "Kubelet Runtime Operations Error Rate alert",
+                "state": "ok",
+                "tags": {},
+                "title": "[OK] Kubelet Runtime Operations Error Rate alert",
+                "ruleUrl": "https://grafana.stargate.cloudeco.io/d/6eRS6XR7k/spaceone-dev-cluster-alerts-dashboard-20210621-backup?tab=alert&viewPanel=14&orgId=1",
+                "ruleId": 92.0
             }
         }
 
@@ -124,7 +118,24 @@ class TestEvent(TestCase):
         }
         params5 = {"options": {
         },
-            "data": {}
+            "data": {
+                "evalMatches": [
+                    {
+                        "tags": {},
+                        "value": 0.020317392596204395,
+                        "metric": "{}"
+                    }
+                ],
+                "ruleId": 92.0,
+                "ruleName": "Kubelet Runtime Operations Error Rate alert",
+                "tags": {},
+                "dashboardId": 44.0,
+                "orgId": 1.0,
+                "panelId": 14.0,
+                "state": "alerting",
+                "title": "[Alerting] Kubelet Runtime Operations Error Rate alert",
+                "ruleUrl": "https://grafana.stargate.cloudeco.io/d/6eRS6XR7k/spaceone-dev-cluster-alerts-dashboard-20210621-backup?tab=alert&viewPanel=14&orgId=1"
+            }
 
         }
         params6 = {
@@ -163,8 +174,48 @@ class TestEvent(TestCase):
             }
         }
 
+        params7 = {
+            "options": {},
+            "data":
+                {
+                    "ruleUrl": "https://grafana.stargate.cloudeco.io/d/6eRS6XR7k/spaceone-dev-cluster-alerts-dashboard-20210621-backup?tab=alert&viewPanel=16&orgId=1",
+                    "evalMatches": [
+                        {
+                            "tags": {
+                                "verb": "GET"
+                            },
+                            "value": 0.00953699724356614,
+                            "metric": "GET"
+                        },
+                        {
+                            "value": 0.010471153199535389,
+                            "metric": "PUT",
+                            "tags": {
+                                "verb": "PUT"
+                            }
+                        },
+                        {
+                            "value": 0.003164335949212073,
+                            "metric": "POST",
+                            "tags": {
+                                "verb": "POST"
+                            }
+                        }
+                    ],
+                    "ruleName": "API Server Rest Client Request Latency alert",
+                    "orgId": 1.0,
+                    "ruleId": 81.0,
+                    "message": "detail msg",
+                    "title": "[Alerting] API Server Rest Client Request Latency alert",
+                    "state": "alerting",
+                    "tags": {},
+                    "dashboardId": 44.0,
+                    "panelId": 16.0
+                }
+        }
+
         #params1, params2, params3, params4,
-        test_cases = [params6]
+        test_cases = [params1, params2, params3, params4, params5, params6, params7]
 
         for idx, test_case in enumerate(test_cases):
             print(f'###### {idx} ########')
