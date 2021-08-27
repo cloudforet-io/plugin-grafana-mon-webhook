@@ -24,7 +24,7 @@ class EventManager(BaseManager):
             event_type = self._get_event_type(raw_data.get('state', ''))
             severity = self._get_severity(raw_data.get('state', ''))
             description = raw_data.get('message', '')
-            title = raw_data.get('title', '')
+            title = self._remove_alert_code_from_title(raw_data.get('title'))
             rule_name = raw_data.get('ruleName', '')
 
             event_dict = {
@@ -172,3 +172,14 @@ class EventManager(BaseManager):
         except Exception as e:
             raise ERROR_CONVERT_DATA_TYPE(field=e)
 
+    @staticmethod
+    def _remove_alert_code_from_title(title):
+        try:
+            alert_codes = ['[Alerting]', '[OK]', '[No Data]']
+            for alert_code in alert_codes:
+                if alert_code in title:
+                    title = title.replace(alert_code, '')
+                    return title
+
+        except ValueError:
+            raise ERROR_CONVERT_DATA_TYPE()
