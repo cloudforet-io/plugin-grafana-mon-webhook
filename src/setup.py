@@ -21,7 +21,7 @@ with open('VERSION', 'r') as f:
     f.close()
 
 setup(
-    name='plugin-grafana-monitoring-webhook',
+    name='grpc-grafana-monitoring-webhook',
     version=VERSION,
     description='Grafana monitoring Webhook',
     long_description='',
@@ -32,7 +32,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'spaceone-core',
-        'spaceone-api',
+        'spaceone-interface',
         'spaceone-tester',
         'schematics'
     ],

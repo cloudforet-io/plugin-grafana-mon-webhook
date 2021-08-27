@@ -15,7 +15,7 @@ class WebhookService(BaseService):
 
     @check_required(['options'])
     def init(self, params):
-        """ init plugin by options
+        """ init grpc by options
                 """
         return {'metadata': {}}
 
@@ -27,5 +27,4 @@ class WebhookService(BaseService):
               params:
                 - options
         """
-        options = params['options']
-        return {}
+        pass

@@ -16,23 +16,28 @@ class TestEvent(TestCase):
 
             },
             "data": {
-                "tags": {
 
-                },
-                "evalMatches": [
+                    "evalMatches": [
+                        {
+                            "metric": "Count",
+                            "tags": {},
+                            "value": 24.0
+                        }
+                    ],
+                    "orgId": 1.0,
+                    "title": "[Alerting] Database Size alert",
+                    "ruleId": 93.0,
+                    "dashboardId": 58.0,
+                    "tags": {
+                        "jiji": "yoon"
+                    },
+                    "ruleName": "Database Size alert",
+                    "panelId": 5.0,
+                    "ruleUrl": "https://grafana.stargate.cloudeco.io/d/9tvNgo77k/mongodb-database-details_copy-20210818?tab=alert&viewPanel=5&orgId=1",
+                    "message": "데이터베이스~",
+                    "state": "alerting"
+                }
 
-                ],
-                "ruleUrl": "https://grafana.stargate.cloudeco.io/d/uZaspace/spaceone-dev-cluster-alerts-dashboard?tab=alert&viewPanel=58&orgId=1",
-                "ruleId": 57.0,
-                "ruleName": "Not Running Pods 0:OK alert",
-                "message": "[cloudone-dev-v1-eks-cluster] Not Running Pods 0 is OK\n\nFailure level : WorkerNode\nPanel : Not Running Pods 0:OK\nDataSource : Prometheus\nResource : pod\nThreshold : not running pod count > 0 , every 5m , for 5m",
-                "imageUrl": "https://grafana.stargate.cloudeco.io/public/img/attachments/GjadpyvgFPVwSGtrfeww.png",
-                "dashboardId": 10.0,
-                "state": "ok",
-                "orgId": 1.0,
-                "panelId": 58.0,
-                "title": "[OK] Not Running Pods 0:OK alert"
-            }
         }
         params2 = {
             "options": {
@@ -42,9 +47,9 @@ class TestEvent(TestCase):
                 "evalMatches": [
                     {
                         "tags": {
-                            "pod": "plugin-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9"
+                            "pod": "grpc-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9"
                         },
-                        "metric": "plugin-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9",
+                        "metric": "grpc-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9",
                         "value": 0.15384615384615385
                     }
                 ],
@@ -52,7 +57,7 @@ class TestEvent(TestCase):
                 "ruleId": 57.0,
                 "title": "[Alerting] Not Running Pods 0:OK alert",
                 "panelId": 58.0,
-                "state": "alerting",
+                "state": "alert",
                 "orgId": 1.0,
                 "ruleName": "Not Running Pods 0:OK alert",
                 "ruleUrl": "https://grafana.stargate.cloudeco.io/d/uZaspace/spaceone-dev-cluster-alerts-dashboard?tab=alert&viewPanel=58&orgId=1",
@@ -68,26 +73,16 @@ class TestEvent(TestCase):
 
             },
             "data": {
-                "ruleId": 74.0,
+                "evalMatches": [],
+                "dashboardId": 44.0,
+                "panelId": 14.0,
                 "orgId": 1.0,
-                "ruleName": "API Server Request Latency TEMP",
-                "dashboardId": 10.0,
-                "message": "Temporary test Webhook\n- API Server Request Latency",
-                "imageUrl": "https://grafana.stargate.cloudeco.io/public/img/attachments/qmNDGfjVSyG53lu9RmOb.png",
-                "evalMatches": [
-                    {
-                        "value": 0.48198821648077433,
-                        "metric": "{}",
-                        "tags": None
-                    }
-                ],
-                "title": "[Alerting] API Server Request Latency TEMP",
-                "tags": {
-
-                },
-                "panelId": 102.0,
-                "state": "alerting",
-                "ruleUrl": "https://grafana.stargate.cloudeco.io/d/uZaspace/spaceone-dev-cluster-alerts-dashboard?tab=alert&viewPanel=102&orgId=1"
+                "ruleName": "Kubelet Runtime Operations Error Rate alert",
+                "state": "ok",
+                "tags": {},
+                "title": "[OK] Kubelet Runtime Operations Error Rate alert",
+                "ruleUrl": "https://grafana.stargate.cloudeco.io/d/6eRS6XR7k/spaceone-dev-cluster-alerts-dashboard-20210621-backup?tab=alert&viewPanel=14&orgId=1",
+                "ruleId": 92.0
             }
         }
 
@@ -105,10 +100,10 @@ class TestEvent(TestCase):
                 "evalMatches": [
                     {
                         "tags": {
-                            "pod": "plugin-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9",
-                            "LB": "plugin-grafana-monitoring-webhook-rajbcnsjbhjszvfv-jps-8b84876q9wq9"
+                            "pod": "grpc-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9",
+                            "LB": "grpc-grafana-monitoring-webhook-rajbcnsjbhjszvfv-jps-8b84876q9wq9"
                         },
-                        "metric": "plugin-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9",
+                        "metric": "grpc-grafana-monitoring-webhook-rajbcnsjbhjszvfv-8b84876q9wq9",
                         "value": 0.15384615384615385
                     }
                 ],
@@ -122,17 +117,110 @@ class TestEvent(TestCase):
             }
         }
         params5 = {"options": {
-
-            },
-            "data": {}
+        },
+            "data": {
+                "evalMatches": [
+                    {
+                        "tags": {},
+                        "value": 0.020317392596204395,
+                        "metric": "{}"
+                    }
+                ],
+                "ruleId": 92.0,
+                "ruleName": "Kubelet Runtime Operations Error Rate alert",
+                "tags": {},
+                "dashboardId": 44.0,
+                "orgId": 1.0,
+                "panelId": 14.0,
+                "state": "alerting",
+                "title": "[Alerting] Kubelet Runtime Operations Error Rate alert",
+                "ruleUrl": "https://grafana.stargate.cloudeco.io/d/6eRS6XR7k/spaceone-dev-cluster-alerts-dashboard-20210621-backup?tab=alert&viewPanel=14&orgId=1"
+            }
 
         }
+        params6 = {
+            "options": {},
+            "data": {
+
+                "panelId": 8.0,
+                "orgId": 1.0,
+                "title": "[Alerting] API Server Request Errors alert",
+                "ruleName": "API Server Request Errors alert",
+                "tags": {},
+                "message": "API Server Request Errors",
+                "evalMatches": [
+                    {
+                        "tags": {
+                            "code": "0",
+                            "verb": "WATCH"
+                        },
+                        "metric": "0 WATCH",
+                        "value": 0.7647628374624433
+                    }, {
+                        "tags": {
+                            "verb": "POST",
+                            "code": "201"
+                        },
+                        "metric": "201 POST",
+                        "value": 0.43159030922294406
+                    }
+                ],
+                "dashboardId": 44.0,
+                "state": "alerting",
+                "ruleUrl": "https://grafana.stargate.cloudeco.io/d/6eRS6XR7k/spaceone-dev-cluster-alerts-d" +
+                           "ashboard-20210621-backup?tab=alert&viewPanel=8&orgId=1",
+                "ruleId": 90.0
+
+            }
+        }
+
+        params7 = {
+            "options": {},
+            "data":
+                {
+                    "ruleUrl": "https://grafana.stargate.cloudeco.io/d/6eRS6XR7k/spaceone-dev-cluster-alerts-dashboard-20210621-backup?tab=alert&viewPanel=16&orgId=1",
+                    "evalMatches": [
+                        {
+                            "tags": {
+                                "verb": "GET"
+                            },
+                            "value": 0.00953699724356614,
+                            "metric": "GET"
+                        },
+                        {
+                            "value": 0.010471153199535389,
+                            "metric": "PUT",
+                            "tags": {
+                                "verb": "PUT"
+                            }
+                        },
+                        {
+                            "value": 0.003164335949212073,
+                            "metric": "POST",
+                            "tags": {
+                                "verb": "POST"
+                            }
+                        }
+                    ],
+                    "ruleName": "API Server Rest Client Request Latency alert",
+                    "orgId": 1.0,
+                    "ruleId": 81.0,
+                    "message": "detail msg",
+                    "title": "[Alerting] API Server Rest Client Request Latency alert",
+                    "state": "alerting",
+                    "tags": {},
+                    "dashboardId": 44.0,
+                    "panelId": 16.0
+                }
+        }
+
         #params1, params2, params3, params4,
-        test_cases = [params5]
+        test_cases = [params1, params2, params3, params4, params5, params6, params7]
 
         for idx, test_case in enumerate(test_cases):
             print(f'###### {idx} ########')
-            parsed_data = self.monitoring.Event.parse({'options': {}, 'data': test_case.get('data')})
+            data = test_case.get('data')
+            parsed_data = self.monitoring.Event.parse({'options': {}, 'data': data})
             print_json(parsed_data)
             print()
 
