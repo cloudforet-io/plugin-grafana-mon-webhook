@@ -32,7 +32,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'spaceone-core',
-        'spaceone-interface',
+        'spaceone-api',
         'spaceone-tester',
         'schematics'
     ],

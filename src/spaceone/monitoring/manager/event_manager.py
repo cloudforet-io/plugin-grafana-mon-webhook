@@ -179,7 +179,7 @@ class EventManager(BaseManager):
             for alert_code in alert_codes:
                 if alert_code in title:
                     title = title.replace(alert_code, '')
-                    return title
+            return title
 
         except ValueError:
             raise ERROR_CONVERT_DATA_TYPE()
