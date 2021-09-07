@@ -213,16 +213,27 @@ class TestEvent(TestCase):
                     "panelId": 16.0
                 }
         }
+        params8 = {
+            'options': {},
+            'data': {
+
+                    "occured_at": "2021-08-23T06:47:42.759Z",
+                    "description": "마이데이타 포탈 테스트의CPU 현재 주의 상태",
+                    "title": "(주의 알림)마이데이타 포탈 테스트/CPU",
+                    "event_type": "ALERT",
+                    "severity": "ALERT",
+                    "alert_id": "alert-f81100e73c00"
+                }
+            }
 
         #params1, params2, params3, params4,
-        test_cases = [params1, params2, params3, params4, params5, params6, params7]
+        test_cases = [params8]
 
         for idx, test_case in enumerate(test_cases):
             print(f'###### {idx} ########')
             data = test_case.get('data')
             parsed_data = self.monitoring.Event.parse({'options': {}, 'data': data})
-            print_json(parsed_data)
-            print()
+            print(parsed_data)
 
 
 
