@@ -51,10 +51,10 @@ class EventManager(BaseManager):
 
     @staticmethod
     def _generate_event_key(raw_data):
-        dashboard_id = raw_data.get('dashboardId', '')
-        panel_id = raw_data.get('panelId', '')
-        rule_id = raw_data.get('ruleId', '')
-        org_id = raw_data.get('orgId', '')
+        dashboard_id = raw_data.get('dashboardId')
+        panel_id = raw_data.get('panelId')
+        rule_id = raw_data.get('ruleId')
+        org_id = raw_data.get('orgId')
 
         if dashboard_id is None:
             raise ERROR_REQUIRED_FIELDS(field='dashboard_id')
