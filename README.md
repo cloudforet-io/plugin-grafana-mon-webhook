@@ -69,3 +69,88 @@ Webhook notification: https://grafana.com/docs/grafana/latest/alerting/old-alert
 | domain_id | str	| domain_id	| domain-12121212121	|
 | created_at | datetime | created time | "2021-08-23T06:47:32.753Z"	|
 
+
+## cURL Requests examples
+This topic provides examples of calls to the SpaceONE Grafana monitoring webhook using cURL.
+
+Here's a cURL command that works for getting the response from webhook, you can test the following on your local machine.
+```
+curl -X POST https://your_spaceone_monitoring_webhook_url -d '{
+  "dashboardId": xx,
+  "evalMatches": [
+    {
+      "value": xxx,
+      "metric": "xxx",
+      "tags": {}
+    }
+  ],
+  "ruleUrl": "xxx",
+  "imageUrl": "xxx",
+  "message": "xxx",
+  "orgId": xx,
+  "panelId": xx,
+  "ruleId": xx,
+  "ruleName": "xxx",
+  "ruleUrl": "xxx",
+  "state": "xxx",
+  "tags": {
+    "xxx": "xxx"
+  },
+  "title": "xxx"
+}
+```
+
+Followings are examples which works for testing your own webhook.
+
+```
+curl -X POST https://{your_spaceone_monitoring_grafana_webhook_url} -d '{
+  "dashboardId": 1,
+  "evalMatches": [
+    {
+      "value": 1,
+      "metric": "Count",
+      "tags": {}
+    }
+  ],
+  "ruleUrl": "https://grafana.stargate.cloudeco.io/d/6eRS6XR7k/spaceone-dev-cluster-alerts-dashboard-20210621-backup?tab=alert&viewPanel=14&orgId=1",
+  "imageUrl": "https://grafana.com/assets/img/blog/mixed_styles.png",
+  "message": "Notification Message",
+  "orgId": 1,
+  "panelId": 2,
+  "ruleId": 1,
+  "ruleName": "Panel Title alert",
+  "ruleUrl": "http://localhost:3000/d/hZ7BuVbWz/test-dashboard?fullscreen\u0026edit\u0026tab=alert\u0026panelId=2\u0026orgId=1",
+  "state": "alerting",
+  "tags": {
+    "tag name": "tag value"
+  },
+  "title": "[Alerting] Panel Title alert"
+}'
+```
+
+```
+curl -X POST https://monitoring-webhook.dev.spaceone.dev/monitoring/v1/webhook/webhook-1eea0a98d2aa/ed270cc6ea8bb6037313ddbc1e6ee0b3/events -d '{
+  "tags": {},
+  "orgId": 0.0,
+  "state": "alerting",
+  "message": "Someone is testing the alert notification within Grafana.",
+  "ruleUrl": "https://grafana.stargate.cloudeco.io/",
+  "dashboardId": 1.0,
+  "title": "[Alerting] Test notification",
+  "panelId": 1.0,
+  "ruleId": 3.2760766009712717e+18,
+  "ruleName": "Test notification",
+  "evalMatches": [
+      {
+          "metric": "High value",
+          "tags": null,
+          "value": 100.0
+      },
+      {
+          "metric": "Higher Value",
+          "value": 200.0,
+          "tags": null
+      }
+  ]
+}'
+```
