@@ -95,7 +95,7 @@ class EventManager(BaseManager):
             severity_flag = 'INFO'
         elif event_state == 'no_data':
             severity_flag = 'NONE'
-        elif event_state == 'alert':
+        elif event_state == 'alerting':
             severity_flag = 'ERROR'
 
         return severity_flag
