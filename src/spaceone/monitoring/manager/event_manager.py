@@ -18,43 +18,40 @@ class EventManager(BaseManager):
 
         results = []
 
-        try:
-            occurred_at = datetime.now()
-            event_key = self._generate_event_key(raw_data)
-            event_type = self._get_event_type(raw_data.get('state', ''))
-            severity = self._get_severity(raw_data.get('state', ''))
-            description = raw_data.get('message', '')
-            title = self._remove_alert_code_from_title(raw_data.get('title'))
-            rule_name = raw_data.get('ruleName', '')
+        occurred_at = datetime.now()
+        event_key = self._generate_event_key(raw_data)
+        event_type = self._get_event_type(raw_data.get('state', ''))
+        severity = self._get_severity(raw_data.get('state', ''))
+        description = raw_data.get('message', '')
+        title = self._remove_alert_code_from_title(raw_data.get('title'))
+        rule_name = raw_data.get('ruleName', '')
 
-            event_dict = {
-                'event_key': event_key,
-                'event_type': event_type,
-                'severity': severity,
-                'title': title,
-                'rule': rule_name,
-                'resource': {},
-                'description': description,
-                'occurred_at': occurred_at,
-                'additional_info': self._get_additional_info(self, raw_data)
-            }
+        event_dict = {
+            'event_key': event_key,
+            'event_type': event_type,
+            'severity': severity,
+            'title': title,
+            'rule': rule_name,
+            'resource': {},
+            'description': description,
+            'occurred_at': occurred_at,
+            'additional_info': self._get_additional_info(self, raw_data)
+        }
 
-            # Check if EvalMatched is Empty to split one alert to multiple events TODO: -> OK
-            event_vo = self._check_validity(event_dict)  # TODO : Append list at here -> OK
-            results.append(event_vo)
-            _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
+        # Check if EvalMatched is Empty to split one alert to multiple events TODO: -> OK
+        event_vo = self._check_validity(event_dict)  # TODO : Append list at here -> OK
+        results.append(event_vo)
+        _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
 
-            return results
+        return results
 
-        except Exception as e:
-            raise ERROR_PARSE_EVENT(field=e)  # TODO : change RAISE ERROR
 
     @staticmethod
     def _generate_event_key(raw_data):
-        dashboard_id = raw_data.get('dashboardId', '')
-        panel_id = raw_data.get('panelId', '')
-        rule_id = raw_data.get('ruleId', '')
-        org_id = raw_data.get('orgId', '')
+        dashboard_id = raw_data.get('dashboardId')
+        panel_id = raw_data.get('panelId')
+        rule_id = raw_data.get('ruleId')
+        org_id = raw_data.get('orgId')
 
         if dashboard_id is None:
             raise ERROR_REQUIRED_FIELDS(field='dashboard_id')
@@ -95,7 +92,7 @@ class EventManager(BaseManager):
             severity_flag = 'INFO'
         elif event_state == 'no_data':
             severity_flag = 'NONE'
-        elif event_state == 'alert':
+        elif event_state == 'alerting':
             severity_flag = 'ERROR'
 
         return severity_flag
