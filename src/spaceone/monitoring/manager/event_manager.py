@@ -24,6 +24,7 @@ class EventManager(BaseManager):
         severity = self._get_severity(raw_data.get('state', ''))
         description = raw_data.get('message', '')
         title = self._remove_alert_code_from_title(raw_data.get('title'))
+        image_url = raw_data.get('imageUrl', '')
         rule_name = raw_data.get('ruleName', '')
 
         event_dict = {
@@ -32,6 +33,7 @@ class EventManager(BaseManager):
             'severity': severity,
             'title': title,
             'rule': rule_name,
+            'image_url': image_url,
             'resource': {},
             'description': description,
             'occurred_at': occurred_at,
@@ -127,10 +129,6 @@ class EventManager(BaseManager):
 
     @staticmethod
     def _check_required_to_parse(eval_value):  # TODO : Delete!!
-        '''
-            Origin: Tag 값을 봤는데 Tag values 중에 첫번째값이 뒤에 값들과 중복이 있으면 가짜 Event 모델을 만들도록 True return
-            첫번째 값 & 뒤에 값 중복의 의미 : GROUP BY (code, verb, port) -> GROUP BY (200, WATCH, 200) event 3개로 split하자 -> Doesnt make sense
-        '''
         required_to_mimic = False
         tags = eval_value.get('tags')
         if tags is None:
