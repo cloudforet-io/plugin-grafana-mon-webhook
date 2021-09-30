@@ -40,13 +40,11 @@ class EventManager(BaseManager):
             'additional_info': self._get_additional_info(self, raw_data)
         }
 
-        # Check if EvalMatched is Empty to split one alert to multiple events TODO: -> OK
         event_vo = self._check_validity(event_dict)  # TODO : Append list at here -> OK
         results.append(event_vo)
         _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
 
         return results
-
 
     @staticmethod
     def _generate_event_key(raw_data):
@@ -111,9 +109,6 @@ class EventManager(BaseManager):
 
         if 'orgId' in raw_data:
             additional_info.update({'org_id': str(raw_data.get('orgId', ''))})
-
-        if 'imageUrl' in raw_data:
-            additional_info.update({'image_url': raw_data.get('imageUrl')})
 
         if 'ruleUrl' in raw_data:
             additional_info.update({'rule_url': raw_data.get('ruleUrl')})

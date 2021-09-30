@@ -225,9 +225,34 @@ class TestEvent(TestCase):
                     "alert_id": "alert-f81100e73c00"
                 }
             }
+        params9 = {
+            'options':{},
+            'data':{
 
+                    "orgId": 1.0,
+                    "tags": {
+                        "tag name": "tag value"
+                    },
+                    "title": "[Alerting]jiyoonkii_Test Panel Title alert",
+                    "state": "alerting",
+                    "dashboardId": 1.0,
+                    "ruleUrl": "http://localhost:3000/d/hZ7BuVbWz/test-dashboard?fullscreen&edit&tab=alert&panelId=2&orgId=1",
+                    "ruleName": "Panel Title alert",
+                    "ruleId": 1.0,
+                    "panelId": 2.0,
+                    "message": "Notification Message",
+                    "evalMatches": [
+                        {
+                            "tags": {},
+                            "metric": "Count",
+                            "value": 1.0
+                        }
+                    ],
+                    "imageUrl": "https://grafana.com/assets/img/blog/mixed_styles.png"
+                }
+        }
         #params1, params2, params3, params4,
-        test_cases = [params8]
+        test_cases = [params9]
 
         for idx, test_case in enumerate(test_cases):
             print(f'###### {idx} ########')
