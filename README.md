@@ -48,9 +48,18 @@ Webhook notification: https://grafana.com/docs/grafana/latest/alerting/old-alert
 | tags		| { "a": "b" } 		|
 | evalMatches	| "evalMatches": [{"value": 342.2222, "metric": "Count", "tags": null}] |
 
+## Event key criteria
+Hash key of ```raw_data.panel_id``` , ```raw_data.dashboard_id``` and ```raw_data.org_id```.
+
+## Severity matching information
+|Grafana  ```state```| SpaceONE Event  ```severity```|
+|---|---|
+|alerting|ALERT|
+|ok|RECOVERY|
+|no_data|NONE|
+
 
 ## SpaceONE Event Model
-
 | Field		| Type | Description	| Example	|
 | ---      | ---     | ---           | ---           |
 | event_id | str  | auto generation | event-1234556  |
@@ -68,7 +77,6 @@ Webhook notification: https://grafana.com/docs/grafana/latest/alerting/old-alert
 | project_id | str	| project_id	| project-12312323232    |
 | domain_id | str	| domain_id	| domain-12121212121	|
 | created_at | datetime | created time | "2021-08-23T06:47:32.753Z"	|
-
 
 ## cURL Requests examples
 This topic provides examples of calls to the SpaceONE Grafana monitoring webhook using cURL.
