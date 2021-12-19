@@ -40,7 +40,7 @@ class EventManager(BaseManager):
             'additional_info': self._get_additional_info(self, raw_data)
         }
 
-        event_vo = self._check_validity(event_dict)  # TODO : Append list at here -> OK
+        event_vo = self._check_validity(event_dict)
         results.append(event_vo)
         _LOGGER.debug(f'[EventManager] parse Event : {event_dict}')
 
@@ -79,16 +79,15 @@ class EventManager(BaseManager):
     @staticmethod
     def _get_severity(event_state):
         """
-        TODO : Alert Study -> OK
         alerting : ALERT
         ok : RECOVERY
         no_data : NONE
         ------
-        paused: Cannot be notified as a event_tate.
+        paused: Cannot be notified as a event_state.
         pending: Cannot be notified as event_state.
         """
         severity_flag = 'NONE'
-        if event_state == 'ok':  # TODO : Check what pending/paused mean in Grafana -> OK
+        if event_state == 'ok':
             severity_flag = 'INFO'
         elif event_state == 'no_data':
             severity_flag = 'NONE'
@@ -99,7 +98,6 @@ class EventManager(BaseManager):
 
     @staticmethod
     def _get_additional_info(self, raw_data):
-        # TODO : case study
         additional_info = {}
         if 'dashboardId' in raw_data:
             additional_info.update({'dashboard_id': str(raw_data.get('dashboardId', ''))})
@@ -119,20 +117,6 @@ class EventManager(BaseManager):
             additional_info.update({'eval_matches': eval_match_str})
 
         return additional_info
-
-    # TODO : Check if 'tags' contains resource information -> OK
-
-    @staticmethod
-    def _check_required_to_parse(eval_value):  # TODO : Delete!!
-        required_to_mimic = False
-        tags = eval_value.get('tags')
-        if tags is None:
-            pass
-        else:
-            resource_values = [t for t in tags.values()]  # WATCH, 0
-            if len(resource_values) > 1 and len(resource_values) != resource_values.count(resource_values[0]):
-                required_to_mimic = True
-        return required_to_mimic
 
     @staticmethod
     def _check_test_notification(raw_data):
