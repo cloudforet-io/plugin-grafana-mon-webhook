@@ -1,16 +1,14 @@
 ## 개요
 
-클라우드포레는 Grafana와 연동하기 위해 Grafana Webhook을 제공하고 있습니다.
-
-또한 Grafana는 타 서비스와 연동하기 위해 Notification channels에 Grafana Alert을 수신할 webhook을 명세합니다.  
-Notification channels에 클라우드포레의 Grafana Webhook을 명세하고 특정 rule에 추가할 경우 Grafana에서 발생하는 Alert을 받을 수 있습니다.
-
-본 가이드는 클라우드포레에서 Grafana webhook을 생성 후, Grafana의 Notification channels에 사용할 Webhook 설정하고  
-특정 rule에 생성한 channel을 추가해보도록 하겠습니다. 다음과 같은 순서로 진행 됩니다.
+클라우드포레는 Grafana와 연동하기 위해 Grafana Webhook을 제공하고 있습니다.  
+본 가이드는 Grafana 에서 보내는 Alert 을 클라우드포레로 수신하기 위한 설정 방법을 안내 합니다. 설정 방법은 아래와 같은 순서로 수행합니다.
 
 [1. Grafana Webhook 생성](./GUIDE.md/#1-grafana-webhook-생성)  
 [2. Notification channels 설정](./GUIDE.md/#2-notification-channels-설정)  
 [3. Alert rules에 webhook 추가](./GUIDE.md/#3-alert-rules에-notification-channel-추가)  
+
+Grafana는 타 서비스와 연동하기 위해 Notification channels 이라는 기능을 제공하며,   
+이 channel 에 클라우드포레의 Webhook URL 을 명세하여 Grafana 에서 발생하는 Alert을 클라우드포레로 전송 가능합니다.
 
 <br>
 <br>
@@ -42,7 +40,7 @@ Notification channels에 클라우드포레의 Grafana Webhook을 명세하고 �
 ## 2. Notification channels 설정
 
 이제 Grafana에서 Notification channels을 설정 하겠습니다.  
-이때  클라우드포레의 Grafana Webhook을 생성한 후 획득한 `Webhook URL`이 사용됩니다.
+여기서는 이전 단계에서 생성한 Webhook 의 URL 이 사용될 예정입니다.
 
 (1) Grafana 콘솔 로그인 > [Alerting] > [Notification channels] > [New channel] 버튼을 클릭 합니다.
 
@@ -60,9 +58,9 @@ Notification channels에 클라우드포레의 Grafana Webhook을 명세하고 �
 ## 3. Alert rules에 Notification channel 추가
 
 실제 rules에 생성한 Notification channel을 추가해 보겠습니다.  
-사용자 환경에 맞게 사용하고 있는 rule에 생성한 Webhook을 추가하면 됩니다.
+사용자 환경에 맞게 사용하고 있는 rule에 생성한 Notification channel을 추가하면 됩니다.
 
-아래는 예시로 1개의 특정 rule에 Webhook을 추가해보도록 하겠습니다.
+아래는 예시로 1개의 특정 rule에 Notification channel을 추가해보도록 하겠습니다.
 
 (1) 추가할 rule의 [Edit alert] 버튼을 클릭 합니다.
 
