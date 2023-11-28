@@ -1,8 +1,9 @@
 import logging
 import hashlib
 import json
-from spaceone.core import utils
+import re
 from datetime import datetime
+from dateutil import parser
 from spaceone.core.manager import BaseManager
 from spaceone.monitoring.model.event_response_model import EventModel
 from spaceone.monitoring.error.event import *
@@ -18,14 +19,31 @@ class EventManager(BaseManager):
 
         results = []
 
-        occurred_at = datetime.now()
-        event_key = self._generate_event_key(raw_data)
-        event_type = self._get_event_type(raw_data.get('state', ''))
-        severity = self._get_severity(raw_data.get('state', ''))
-        description = raw_data.get('message', '')
-        title = self._remove_alert_code_from_title(raw_data.get('title'))
-        image_url = raw_data.get('imageUrl', '')
-        rule_name = raw_data.get('ruleName', '')
+        # Check if message is legacy format
+        is_legacy = self._check_legacy(raw_data)
+
+        if is_legacy:
+            occurred_at = datetime.now()
+            event_key = self._generate_legacy_event_key(raw_data)
+            event_type = self._get_legacy_event_type(raw_data.get('state', ''))
+            severity = self._get_legacy_severity(raw_data.get('state', ''))
+            description = raw_data.get('message', '')
+            title = self._remove_legacy_alert_code_from_title(raw_data.get('title'))
+            image_url = raw_data.get('imageUrl', '')
+            rule_name = raw_data.get('ruleName', '')
+            additional_info = self._get_legacy_additional_info(raw_data)
+
+        else:
+            # Convert string to datetime
+            occurred_at = parser.parse(self._get_alert_start_time_from_alerts(raw_data, 'startsAt'))
+            event_key = self._generate_event_key(raw_data)
+            event_type = self._get_event_type(raw_data.get('status', ''))
+            severity = self._get_severity(raw_data.get('status', ''))
+            description = raw_data.get('message', '')
+            title = self._remove_alert_code_from_title(raw_data.get('title', ''))
+            image_url = self._get_img_url_from_alerts(raw_data, 'panelURL')
+            rule_name = raw_data.get('groupKey', '')
+            additional_info = self._get_additional_info(raw_data)
 
         event_dict = {
             'event_key': event_key,
@@ -37,7 +55,7 @@ class EventManager(BaseManager):
             'resource': {},
             'description': description,
             'occurred_at': occurred_at,
-            'additional_info': self._get_additional_info(self, raw_data)
+            'additional_info': additional_info
         }
 
         event_vo = self._check_validity(event_dict)
@@ -47,7 +65,12 @@ class EventManager(BaseManager):
         return results
 
     @staticmethod
-    def _generate_event_key(raw_data):
+    def _check_legacy(raw_data):
+        return False if raw_data.get('dashboardId') is None else True
+
+
+    @staticmethod
+    def _generate_legacy_event_key(raw_data):
         dashboard_id = raw_data.get('dashboardId')
         panel_id = raw_data.get('panelId')
         rule_id = raw_data.get('ruleId')
@@ -73,11 +96,11 @@ class EventManager(BaseManager):
         return hashed_event_key
 
     @staticmethod
-    def _get_event_type(event_state):
+    def _get_legacy_event_type(event_state):
         return 'RECOVERY' if event_state == 'ok' else 'ALERT'
 
     @staticmethod
-    def _get_severity(event_state):
+    def _get_legacy_severity(event_state):
         """
         alerting : ALERT
         ok : RECOVERY
@@ -96,8 +119,7 @@ class EventManager(BaseManager):
 
         return severity_flag
 
-    @staticmethod
-    def _get_additional_info(self, raw_data):
+    def _get_legacy_additional_info(self, raw_data):
         additional_info = {}
         if 'dashboardId' in raw_data:
             additional_info.update({'dashboard_id': str(raw_data.get('dashboardId', ''))})
@@ -147,7 +169,7 @@ class EventManager(BaseManager):
             raise ERROR_CONVERT_DATA_TYPE(field=e)
 
     @staticmethod
-    def _remove_alert_code_from_title(title):
+    def _remove_legacy_alert_code_from_title(title):
         try:
             alert_codes = ['[Alerting]', '[OK]', '[No Data]']
             for alert_code in alert_codes:
@@ -157,3 +179,76 @@ class EventManager(BaseManager):
 
         except ValueError:
             raise ERROR_CONVERT_DATA_TYPE()
+
+    @staticmethod
+    def _generate_event_key(raw_data):
+        group_key = raw_data.get('groupKey')
+
+        if group_key is None:
+            raise ERROR_REQUIRED_FIELDS(field='group_key')
+        hash_object = hashlib.md5(group_key.encode())
+        hashed_event_key = hash_object.hexdigest()
+
+        return hashed_event_key
+
+    @staticmethod
+    def _get_event_type(event_status):
+        """
+        firing : ALERT
+        resolved : RECOVERY
+        :param event_status:
+        :return:
+        """
+        return 'RECOVERY' if event_status == 'resolved' else 'ALERT'
+
+    @staticmethod
+    def _get_severity(event_status):
+        """
+        firing : ERROR
+        resolved : INFO
+        :param event_status:
+        :return:
+        """
+        severity_flag = 'NONE'
+
+        if event_status == 'resolved':
+            severity_flag = 'INFO'
+        elif event_status == 'firing':
+            severity_flag = 'ERROR'
+
+        return severity_flag
+
+    @staticmethod
+    def _remove_alert_code_from_title(title):
+        try:
+            title = re.sub('\[[FIRING|RESOLVED]+\:+[0-9]+\] ', '', title)
+
+        except Exception as e:
+            ERROR_CONVERT_TITLE()
+
+        return title
+
+    @staticmethod
+    def _get_img_url_from_alerts(raw_data, key):
+        alerts = raw_data.get('alerts')
+        return '' if len(alerts) == 0 else alerts[0].get(key)
+
+    @staticmethod
+    def _get_alert_start_time_from_alerts(raw_data, key):
+        alerts = raw_data.get('alerts')
+        return datetime.now() if len(alerts) == 0 else alerts[0].get(key)
+
+    def _get_additional_info(self, raw_data):
+        additional_info = {}
+        if 'orgId' in raw_data:
+            additional_info.update({'org_id': str(raw_data.get('orgId', ''))})
+
+        if 'groupKey' in raw_data:
+            additional_info.update({'group_key': str(raw_data.get('groupKey', ''))})
+
+        if 'alerts' in raw_data:
+            alerts_dict = raw_data.get('alerts')
+            alerts_str = self._change_eval_dict_to_str(alerts_dict)
+            additional_info.update({'alerts': alerts_str})
+
+        return additional_info
