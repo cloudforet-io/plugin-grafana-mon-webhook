@@ -33,7 +33,7 @@ setup(
     install_requires=[
         'spaceone-core',
         'spaceone-api',
-        'spaceone-tester',
+        'spaceone-monitoring',
         'schematics'
     ],
     zip_safe=False,
