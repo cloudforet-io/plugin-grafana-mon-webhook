@@ -11,6 +11,7 @@ _LOGGER = logging.getLogger('spaceone')
 app = WebhookPluginServer()
 
 
+
 @app.route('Webhook.init')
 def webhook_init(params: dict) -> dict:
     """ init plugin by options
