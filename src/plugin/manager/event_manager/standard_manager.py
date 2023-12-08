@@ -4,6 +4,7 @@ import re
 from typing import Union
 from datetime import datetime
 from dateutil import parser
+from json import dumps
 
 from spaceone.core import utils
 from plugin.manager.event_manager import ParseManager
@@ -30,10 +31,10 @@ class StandardManager(ParseManager):
             "event_type": self.get_event_type(raw_data.get("status", "")),
             "severity": self.get_severity(raw_data.get("status", "")),
             "title": self.remove_alert_code_from_title(raw_data.get("title")),
-            "rule": raw_data.get("groupKey", ""),
+            "rule": self._get_rule(raw_data),
             "image_url": self._get_value_from_alerts(raw_data, "panelURL"),
             "resource": {},
-            "description": raw_data.get("message", ""),
+            "description": self._make_description(raw_data),
             "occurred_at": self._convert_to_iso8601(self._get_value_from_alerts(raw_data, "startsAt")),
             "additional_info": self.get_additional_info(raw_data)
         }
@@ -95,11 +96,21 @@ class StandardManager(ParseManager):
         return additional_info
 
     def remove_alert_code_from_title(self, title: str) -> str:
+        """
+        title template
+        - [FIRING:4, RESOLVED:4] xxx
+        - [FIRING:4] xxx
+        - [RESOLVED:4] xxx
+
+        :param title:
+        :return:
+        """
         try:
             title = re.sub("\[[FIRING|RESOLVED]+\:+[0-9]+\] ", "", title)
+            title = re.sub("[\[+[a-zA-Z]+\:+[0-9]+\,+.+[a-zA-Z]+\:+[0-9]+\] ", "", title)
 
         except Exception as e:
-            ERROR_CONVERT_TITLE()
+            ERROR_CONVERT_TITLE(title)
 
         return title
 
@@ -126,3 +137,15 @@ class StandardManager(ParseManager):
     @staticmethod
     def _convert_to_iso8601(raw_time: str) -> Union[str, None]:
         return utils.datetime_to_iso8601(parser.parse(raw_time))
+
+    @staticmethod
+    def _make_description(raw_data: dict) -> str:
+        raw_description = raw_data.get("groupLabels", {})
+        raw_description.update(raw_data.get("commonLabels", {}))
+        return dumps(raw_description)
+
+    @staticmethod
+    def _get_rule(raw_data: dict) -> str:
+        _LOGGER.debug(f'[_get_rule] commonLabels => {raw_data.get("commonLabels", {})}')
+        _LOGGER.debug(f'[_get_rule] ruleName => {raw_data.get("commonLabels", {}).get("rulename", " ")}')
+        return raw_data.get("commonLabels", {}).get("rulename", " ")

@@ -1,4 +1,3 @@
 spaceone-api
 spaceone-monitoring
-spaceone-tester
-schematics
+
