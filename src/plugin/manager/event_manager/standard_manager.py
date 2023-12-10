@@ -4,7 +4,6 @@ import re
 from typing import Union
 from datetime import datetime
 from dateutil import parser
-from yaml import dump
 
 from spaceone.core import utils
 from plugin.manager.event_manager import ParseManager
@@ -144,8 +143,16 @@ class StandardManager(ParseManager):
         raw_description.update(raw_data.get("commonAnnotations", {}))
         raw_description.update(externalURL=raw_data.get("externalURL", ""))
         raw_description.update(imageURL=self._get_value_from_alerts(raw_data, "panelURL"))
-        return dump(raw_description, sort_keys=False)
+        # make dict to string
+        description = ""
+        for k in raw_description.keys():
+            tmp = ''.join([k.capitalize(), ': ', raw_description[k], '\n'])
+            description += tmp
+
+        return description
 
     @staticmethod
     def _get_rule(raw_data: dict) -> str:
         return raw_data.get("commonLabels", {}).get("rulename", " ")
+
+
