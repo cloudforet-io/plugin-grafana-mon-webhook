@@ -4,7 +4,7 @@ import re
 from typing import Union
 from datetime import datetime
 from dateutil import parser
-from json import dumps
+from yaml import dump
 
 from spaceone.core import utils
 from plugin.manager.event_manager import ParseManager
@@ -142,10 +142,8 @@ class StandardManager(ParseManager):
     def _make_description(raw_data: dict) -> str:
         raw_description = raw_data.get("groupLabels", {})
         raw_description.update(raw_data.get("commonLabels", {}))
-        return dumps(raw_description)
+        return dump(raw_description)
 
     @staticmethod
     def _get_rule(raw_data: dict) -> str:
-        _LOGGER.debug(f'[_get_rule] commonLabels => {raw_data.get("commonLabels", {})}')
-        _LOGGER.debug(f'[_get_rule] ruleName => {raw_data.get("commonLabels", {}).get("rulename", " ")}')
         return raw_data.get("commonLabels", {}).get("rulename", " ")
