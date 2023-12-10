@@ -138,11 +138,13 @@ class StandardManager(ParseManager):
     def _convert_to_iso8601(raw_time: str) -> Union[str, None]:
         return utils.datetime_to_iso8601(parser.parse(raw_time))
 
-    @staticmethod
-    def _make_description(raw_data: dict) -> str:
+    def _make_description(self, raw_data: dict) -> str:
         raw_description = raw_data.get("groupLabels", {})
         raw_description.update(raw_data.get("commonLabels", {}))
-        return dump(raw_description)
+        raw_description.update(raw_data.get("commonAnnotations", {}))
+        raw_description.update(externalURL=raw_data.get("externalURL", ""))
+        raw_description.update(imageURL=self._get_value_from_alerts(raw_data, "panelURL"))
+        return dump(raw_description, sort_keys=False)
 
     @staticmethod
     def _get_rule(raw_data: dict) -> str:
