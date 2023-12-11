@@ -33,7 +33,7 @@ class StandardManager(ParseManager):
             "rule": self._get_rule(raw_data),
             "image_url": self._get_value_from_alerts(raw_data, "panelURL"),
             "resource": {},
-            "description": self._make_description(raw_data),
+            "description": raw_data.get("message", ""),
             "occurred_at": self._convert_to_iso8601(self._get_value_from_alerts(raw_data, "startsAt")),
             "additional_info": self.get_additional_info(raw_data)
         }
@@ -153,6 +153,7 @@ class StandardManager(ParseManager):
 
     @staticmethod
     def _get_rule(raw_data: dict) -> str:
-        return raw_data.get("commonLabels", {}).get("rulename", " ")
-
-
+        if raw_data.get("commonLabels", {}).get("rulename") is None:
+            return raw_data.get("commonLabels", {}).get("alertname", " ")
+        else:
+            return raw_data.get("commonLabels", {}).get("rulename", " ")
