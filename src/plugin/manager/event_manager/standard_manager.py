@@ -29,7 +29,7 @@ class StandardManager(ParseManager):
             "event_key": self.generate_event_key(raw_data),
             "event_type": self.get_event_type(raw_data.get("status", "")),
             "severity": self.get_severity(raw_data.get("status", "")),
-            "title": self.remove_alert_code_from_title(raw_data.get("title")),
+            "title": self._get_title(raw_data),
             "rule": self._get_rule(raw_data),
             "image_url": self._get_value_from_alerts(raw_data, "panelURL"),
             "resource": {},
@@ -81,18 +81,18 @@ class StandardManager(ParseManager):
 
     def get_additional_info(self, raw_data: dict) -> dict:
         additional_info = {}
-        if "orgId" in raw_data:
-            additional_info.update({"org_id": str(raw_data.get("orgId", ""))})
-
-        if "groupKey" in raw_data:
-            additional_info.update({"group_key": str(raw_data.get("groupKey", ""))})
-
-        if "alerts" in raw_data:
-            alerts_dict = raw_data.get("alerts")
-            alerts_str = self.change_eval_dict_to_str(alerts_dict)
-            additional_info.update({"alerts": alerts_str})
+        for label in raw_data.get('commonLabels', {}).keys():
+            additional_info.update({
+                label: str(raw_data.get('commonLabels', {}).get(label, ""))
+            })
 
         return additional_info
+
+    def _get_title(self, raw_data: dict) -> str:
+        if raw_data.get("commonLabels", {}).get("alertname") is None:
+            return self.remove_alert_code_from_title(raw_data.get("title"))
+        else:
+            return raw_data.get("commonLabels", {}).get("alertname", " ")
 
     def remove_alert_code_from_title(self, title: str) -> str:
         """
