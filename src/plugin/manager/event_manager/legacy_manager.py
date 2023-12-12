@@ -24,7 +24,7 @@ class LegacyManager(ParseManager):
         }
         """
         results = []
-        event_dict = {
+        event: dict = {
             "event_key": self.generate_event_key(raw_data),
             "event_type": self.get_event_type(raw_data.get("state", "")),
             "severity": self.get_severity(raw_data.get("state", "")),
@@ -36,8 +36,8 @@ class LegacyManager(ParseManager):
             "occurred_at": utils.datetime_to_iso8601(datetime.now()),
             "additional_info": self.get_additional_info(raw_data)
         }
-        results.append(event_dict)
-        _LOGGER.debug(f"[LegacyParseManager] parse Event : {event_dict}")
+        results.append(event)
+        _LOGGER.debug(f"[LegacyParseManager] parse Event : {event}")
 
         return {
             "results": results
