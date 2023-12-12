@@ -1,6 +1,9 @@
 import logging
+from typing import Union
 from abc import abstractmethod, ABCMeta
+from dateutil import parser
 
+from spaceone.core import utils
 from spaceone.core.manager import BaseManager
 from plugin.error import *
 
@@ -50,3 +53,7 @@ class ParseManager(BaseManager, metaclass=ABCMeta):
             if subclass.webhook_type == webhook_type:
                 return subclass()
         raise ERROR_INVALID_WEBHOOK_TYPE(webhook_type=webhook_type)
+
+    @staticmethod
+    def convert_to_iso8601(raw_time: str) -> Union[str, None]:
+        return utils.datetime_to_iso8601(parser.parse(raw_time))

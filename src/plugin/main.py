@@ -1,15 +1,13 @@
 import logging
 import json
-from typing import List
+from typing import List, Union
 
-from spaceone.core import utils
 from spaceone.monitoring.plugin.webhook.lib.server import WebhookPluginServer
 from plugin.manager.event_manager.base import ParseManager
 
 _LOGGER = logging.getLogger('spaceone')
 
 app = WebhookPluginServer()
-
 
 
 @app.route('Webhook.init')
@@ -76,7 +74,7 @@ def event_parse(params: dict) -> List[dict]:
 
     # Messages from AWS SNS
     if message_root := options.get('message_root'):
-        data = _get_message_root(message_root, data)
+        data = _get_message_root_data(message_root, data)
 
     # Check if webhook messages are old template
     webhook_type = _get_webhook_type(data)
@@ -86,15 +84,30 @@ def event_parse(params: dict) -> List[dict]:
 
 
 def _get_webhook_type(data: dict) -> str:
-    return 'LEGACY' if data.get('dashboardId') else 'STANDARD'
+    if data.get('dashboardId') and data.get('orgId'):
+        return 'LEGACY'
+    elif data.get('orgId'):
+        return 'STANDARD'
+    else:
+        return 'AWS_SNS'
 
 
-def _get_message_root(message_root: str, raw_data: dict) -> dict:
+def _get_message_root_data(message_root: str, raw_data: dict) -> Union[dict, str]:
     msg_dir = message_root.split('.')
     data = raw_data
     for d in msg_dir:
+        if _check_is_loadable(data[d]) is False:
+            return data
+
         data = data[d]
         if type(data) is str:
             data = json.loads(data)
 
     return data
+
+
+def _check_is_loadable(data: Union[dict, str]) -> bool:
+    if type(data) is dict:
+        return True
+    else:
+        return True if data.startswith("{") else False

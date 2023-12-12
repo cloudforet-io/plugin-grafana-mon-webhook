@@ -3,7 +3,6 @@ import hashlib
 import re
 from typing import Union
 from datetime import datetime
-from dateutil import parser
 
 from spaceone.core import utils
 from plugin.manager.event_manager import ParseManager
@@ -25,7 +24,7 @@ class StandardManager(ParseManager):
         """
         results = []
         _LOGGER.debug(f"[StandardManager] data => {raw_data}")
-        event_dict = {
+        event: dict = {
             "event_key": self.generate_event_key(raw_data),
             "event_type": self.get_event_type(raw_data.get("status", "")),
             "severity": self.get_severity(raw_data.get("status", "")),
@@ -34,11 +33,11 @@ class StandardManager(ParseManager):
             "image_url": self._get_value_from_alerts(raw_data, "panelURL"),
             "resource": {},
             "description": raw_data.get("message", ""),
-            "occurred_at": self._convert_to_iso8601(self._get_value_from_alerts(raw_data, "startsAt")),
+            "occurred_at": self.convert_to_iso8601(self._get_value_from_alerts(raw_data, "startsAt")),
             "additional_info": self.get_additional_info(raw_data)
         }
-        results.append(event_dict)
-        _LOGGER.debug(f"[ContactPointParseManager] parse Event : {event_dict}")
+        results.append(event)
+        _LOGGER.debug(f"[StandardManager] parse Event : {event}")
 
         return {
             "results": results
@@ -133,9 +132,11 @@ class StandardManager(ParseManager):
     def _get_alerts_cnt(raw_data: dict) -> int:
         return len(raw_data.get("alerts", ""))
 
+    """
     @staticmethod
     def _convert_to_iso8601(raw_time: str) -> Union[str, None]:
         return utils.datetime_to_iso8601(parser.parse(raw_time))
+    """
 
     def _make_description(self, raw_data: dict) -> str:
         raw_description = raw_data.get("groupLabels", {})
