@@ -7,12 +7,10 @@ from spaceone.core import utils
 from plugin.manager.event_manager import ParseManager
 from plugin.error import *
 
-
 _LOGGER = logging.getLogger("spaceone")
 
 
 class LegacyManager(ParseManager):
-
     webhook_type = "LEGACY"
 
     def parse(self, raw_data: dict) -> dict:
@@ -34,14 +32,12 @@ class LegacyManager(ParseManager):
             "resource": {},
             "description": raw_data.get("message", ""),
             "occurred_at": utils.datetime_to_iso8601(datetime.now()),
-            "additional_info": self.get_additional_info(raw_data)
+            "additional_info": self.get_additional_info(raw_data),
         }
         results.append(event)
         _LOGGER.debug(f"[LegacyParseManager] parse Event : {event}")
 
-        return {
-            "results": results
-        }
+        return {"results": results}
 
     def generate_event_key(self, raw_data: dict) -> str:
         dashboard_id = raw_data.get("dashboardId")
@@ -93,7 +89,9 @@ class LegacyManager(ParseManager):
     def get_additional_info(self, raw_data: dict) -> dict:
         additional_info = {}
         if "dashboardId" in raw_data:
-            additional_info.update({"dashboard_id": str(raw_data.get("dashboardId", ""))})
+            additional_info.update(
+                {"dashboard_id": str(raw_data.get("dashboardId", ""))}
+            )
 
         if "panelId" in raw_data:
             additional_info.update({"panel_id": str(raw_data.get("panelId"))})

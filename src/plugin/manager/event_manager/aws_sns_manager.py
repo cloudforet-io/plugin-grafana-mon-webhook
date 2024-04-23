@@ -30,17 +30,15 @@ class AWSSNSManager(ParseManager):
             "resource": {},
             "description": raw_data.get("Message"),
             "occurred_at": self.convert_to_iso8601(raw_data.get("Timestamp")),
-            "additional_info": self.get_additional_info(raw_data)
+            "additional_info": self.get_additional_info(raw_data),
         }
         results.append(event)
         _LOGGER.debug(f"[AWSSNSManager] parse Event : {event}")
 
-        return {
-            "results": results
-        }
+        return {"results": results}
 
     def generate_event_key(self, raw_data: dict) -> str:
-        group_key = raw_data.get('TopicArn')
+        group_key = raw_data.get("TopicArn")
 
         if group_key is None:
             raise ERROR_REQUIRED_FIELDS(field="group_key")
@@ -66,7 +64,7 @@ class AWSSNSManager(ParseManager):
             "Message": raw_data.get("Message"),
             "Token": raw_data.get("Token"),
             "TopicArn": raw_data.get("TopicArn"),
-            "SubscribeURL": raw_data.get("SubscribeURL")
+            "SubscribeURL": raw_data.get("SubscribeURL"),
         }
 
     def remove_alert_code_from_title(self, title):
