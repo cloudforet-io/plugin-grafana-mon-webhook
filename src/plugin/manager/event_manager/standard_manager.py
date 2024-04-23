@@ -33,15 +33,15 @@ class StandardManager(ParseManager):
             "image_url": self._get_value_from_alerts(raw_data, "panelURL"),
             "resource": {},
             "description": raw_data.get("message", ""),
-            "occurred_at": self.convert_to_iso8601(self._get_value_from_alerts(raw_data, "startsAt")),
-            "additional_info": self.get_additional_info(raw_data)
+            "occurred_at": self.convert_to_iso8601(
+                self._get_value_from_alerts(raw_data, "startsAt")
+            ),
+            "additional_info": self.get_additional_info(raw_data),
         }
         results.append(event)
         _LOGGER.debug(f"[StandardManager] parse Event : {event}")
 
-        return {
-            "results": results
-        }
+        return {"results": results}
 
     def generate_event_key(self, raw_data: dict) -> str:
         group_key = raw_data.get("groupKey")
@@ -80,10 +80,10 @@ class StandardManager(ParseManager):
 
     def get_additional_info(self, raw_data: dict) -> dict:
         additional_info = {}
-        for label in raw_data.get('commonLabels', {}).keys():
-            additional_info.update({
-                label: str(raw_data.get('commonLabels', {}).get(label, ""))
-            })
+        for label in raw_data.get("commonLabels", {}).keys():
+            additional_info.update(
+                {label: str(raw_data.get("commonLabels", {}).get(label, ""))}
+            )
 
         return additional_info
 
@@ -105,7 +105,9 @@ class StandardManager(ParseManager):
         """
         try:
             title = re.sub("\[[FIRING|RESOLVED]+\:+[0-9]+\] ", "", title)
-            title = re.sub("[\[+[a-zA-Z]+\:+[0-9]+\,+.+[a-zA-Z]+\:+[0-9]+\] ", "", title)
+            title = re.sub(
+                "[\[+[a-zA-Z]+\:+[0-9]+\,+.+[a-zA-Z]+\:+[0-9]+\] ", "", title
+            )
 
         except Exception as e:
             ERROR_CONVERT_TITLE(title)
@@ -120,7 +122,9 @@ class StandardManager(ParseManager):
         except Exception as e:
             raise ERROR_CONVERT_DATA_TYPE(field=e)
 
-    def _get_value_from_alerts(self, raw_data: dict, key: str) -> Union[dict, datetime, str]:
+    def _get_value_from_alerts(
+        self, raw_data: dict, key: str
+    ) -> Union[dict, datetime, str]:
         if self._get_alerts_cnt(raw_data) > 0:
             return raw_data.get("alerts")[0].get(key)
         else:
@@ -143,11 +147,13 @@ class StandardManager(ParseManager):
         raw_description.update(raw_data.get("commonLabels", {}))
         raw_description.update(raw_data.get("commonAnnotations", {}))
         raw_description.update(externalURL=raw_data.get("externalURL", ""))
-        raw_description.update(imageURL=self._get_value_from_alerts(raw_data, "panelURL"))
+        raw_description.update(
+            imageURL=self._get_value_from_alerts(raw_data, "panelURL")
+        )
         # make dict to string
         description = ""
         for k in raw_description.keys():
-            tmp = ''.join([k.capitalize(), ': ', raw_description[k], '\n'])
+            tmp = "".join([k.capitalize(), ": ", raw_description[k], "\n"])
             description += tmp
 
         return description

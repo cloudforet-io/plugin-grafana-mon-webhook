@@ -5,14 +5,14 @@ from typing import List, Union
 from spaceone.monitoring.plugin.webhook.lib.server import WebhookPluginServer
 from plugin.manager.event_manager.base import ParseManager
 
-_LOGGER = logging.getLogger('spaceone')
+_LOGGER = logging.getLogger("spaceone")
 
 app = WebhookPluginServer()
 
 
-@app.route('Webhook.init')
+@app.route("Webhook.init")
 def webhook_init(params: dict) -> dict:
-    """ init plugin by options
+    """init plugin by options
     {
         'options': 'dict'       # Required
     }
@@ -23,14 +23,12 @@ def webhook_init(params: dict) -> dict:
             'metadata': 'dict'  # Required
         }
     """
-    return {
-        'meatadata': {}
-    }
+    return {"meatadata": {}}
 
 
-@app.route('Webhook.verify')
+@app.route("Webhook.verify")
 def webhook_verify(params: dict) -> None:
-    """ verifying plugin
+    """verifying plugin
 
     :param params: WebhookRequest: {
             'options': 'dict'   # Required
@@ -42,9 +40,9 @@ def webhook_verify(params: dict) -> None:
     pass
 
 
-@app.route('Event.parse')
+@app.route("Event.parse")
 def event_parse(params: dict) -> List[dict]:
-    """ Parsing Event Webhook
+    """Parsing Event Webhook
 
     Args:
         params (EventRequest): {
@@ -69,11 +67,11 @@ def event_parse(params: dict) -> List[dict]:
             'image_url': ''
         }
     """
-    options = params['options']
-    data = params['data']
+    options = params["options"]
+    data = params["data"]
 
     # Messages from AWS SNS
-    if message_root := options.get('message_root'):
+    if message_root := options.get("message_root"):
         data = _get_message_root_data(message_root, data)
 
     # Check if webhook messages are old template
@@ -84,16 +82,16 @@ def event_parse(params: dict) -> List[dict]:
 
 
 def _get_webhook_type(data: dict) -> str:
-    if data.get('dashboardId') and data.get('orgId'):
-        return 'LEGACY'
-    elif data.get('orgId'):
-        return 'STANDARD'
+    if data.get("dashboardId") and data.get("orgId"):
+        return "LEGACY"
+    elif data.get("orgId"):
+        return "STANDARD"
     else:
-        return 'AWS_SNS'
+        return "AWS_SNS"
 
 
 def _get_message_root_data(message_root: str, raw_data: dict) -> Union[dict, str]:
-    msg_dir = message_root.split('.')
+    msg_dir = message_root.split(".")
     data = raw_data
     for d in msg_dir:
         if _check_is_loadable(data[d]) is False:

@@ -7,8 +7,8 @@ from spaceone.core import utils
 from spaceone.core.manager import BaseManager
 from plugin.error import *
 
-__all__ = ['ParseManager']
-_LOGGER = logging.getLogger('spaceone')
+__all__ = ["ParseManager"]
+_LOGGER = logging.getLogger("spaceone")
 
 
 class ParseManager(BaseManager, metaclass=ABCMeta):
