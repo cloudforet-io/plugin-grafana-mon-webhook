@@ -13,3 +13,4 @@ local-conf.yml
 test/reports
 test/_trial_temp
 test/event_parse
+.DS_Store
