@@ -77,6 +77,8 @@ class AWSSNSManager(ParseManager):
                 for element in elements:
                     filtered_message += f"- {element}\n"
 
+                filtered_message += "\n"
+
         return filtered_message
 
     @staticmethod
