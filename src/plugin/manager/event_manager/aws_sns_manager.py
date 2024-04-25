@@ -1,8 +1,14 @@
+import json
 import logging
 import hashlib
+import re
+from typing import List
 
+from spaceone.core import utils
 from plugin.manager.event_manager import ParseManager
-from plugin.error import *
+from plugin.error import (
+    ERROR_REQUIRED_FIELDS,
+)
 
 _LOGGER = logging.getLogger("spaceone")
 
@@ -28,7 +34,8 @@ class AWSSNSManager(ParseManager):
             "rule": "",
             "image_url": raw_data.get("SubscribeURL", ""),
             "resource": {},
-            "description": raw_data.get("Message"),
+            # "description": raw_data.get("Message"),
+            "description": self._get_message(raw_data),
             "occurred_at": self.convert_to_iso8601(raw_data.get("Timestamp")),
             "additional_info": self.get_additional_info(raw_data),
         }
@@ -46,6 +53,36 @@ class AWSSNSManager(ParseManager):
         hashed_event_key = hash_object.hexdigest()
 
         return hashed_event_key
+
+    def _get_message(self, raw_data: dict) -> str:
+        raw_data = utils.get_dict_value(raw_data, "Message")
+        raw_data = json.loads(raw_data)
+
+        message = utils.get_dict_value(raw_data, "detail.message")
+        filtered_message = self.__remove_keys(
+            message, ["Annotations", "Source", "Silence"]
+        )
+        no_value_data = re.search(r"\[no value\]", filtered_message)
+
+        if no_value_data:
+            filtered_message += "DatasourceNoData\n"
+        else:
+            alerts = utils.get_dict_value(raw_data, "detail.alerts")
+
+            filtered_message += "ValueString: \n"
+            for alert in alerts:
+                value_string = utils.get_dict_value(alert, "valueString")
+                elements = value_string.split(", ")
+
+                for element in elements:
+                    filtered_message += f"- {element}\n"
+
+        return filtered_message
+
+    @staticmethod
+    def __remove_keys(text: str, keys: List[str]) -> str:
+        pattern = r"|".join(rf"{key}:\s+.*" for key in keys)
+        return re.sub(pattern, "", text, flags=re.MULTILINE)
 
     def get_event_type(self, event_state: str) -> str:
         return "ALERT"
