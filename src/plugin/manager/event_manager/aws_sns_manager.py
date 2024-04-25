@@ -54,19 +54,24 @@ class AWSSNSManager(ParseManager):
         return hashed_event_key
 
     def _get_message(self, raw_data: dict) -> str:
-        raw_data = utils.get_dict_value(raw_data, "Message")
-        raw_data = json.loads(raw_data)
+        raw_data_message = raw_data.get("Message")
+        message = json.loads(raw_data_message)
 
-        message = utils.get_dict_value(raw_data, "detail.message")
+        state = utils.get_dict_value(message, "detail.state")
+
+        if not state:
+            return raw_data_message
+
+        detail_message = utils.get_dict_value(message, "detail.message")
         filtered_message = self.__remove_keys(
-            message, ["Annotations", "Source", "Silence"]
+            detail_message, ["Annotations", "Source", "Silence"]
         )
         no_value_data = re.search(r"\[no value\]", filtered_message)
-
         if no_value_data:
             filtered_message += "DatasourceNoData\n"
+            return filtered_message
         else:
-            alerts = utils.get_dict_value(raw_data, "detail.alerts")
+            alerts = utils.get_dict_value(message, "detail.alerts")
 
             filtered_message += "ValueString: \n"
             for alert in alerts:
@@ -77,8 +82,7 @@ class AWSSNSManager(ParseManager):
                     filtered_message += f"- {element}\n"
 
                 filtered_message += "\n"
-
-        return filtered_message
+            return filtered_message
 
     @staticmethod
     def __remove_keys(text: str, keys: List[str]) -> str:
