@@ -83,7 +83,7 @@ class StandardManager(ParseManager):
         return severity_flag
 
     def _get_message(self, raw_data: dict) -> str:
-        message = raw_data.get("message", "")
+        message = utils.get_dict_value(raw_data, "message")
         no_value_data = re.search(r"\[no value\]", message)
         if no_value_data:
             return "DatasourceNoData"
