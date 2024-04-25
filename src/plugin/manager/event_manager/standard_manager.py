@@ -1,12 +1,16 @@
 import logging
 import hashlib
 import re
-from typing import Union
+from typing import Union, List
 from datetime import datetime
 
 from spaceone.core import utils
 from plugin.manager.event_manager import ParseManager
-from plugin.error import *
+from plugin.error import (
+    ERROR_REQUIRED_FIELDS,
+    ERROR_CONVERT_TITLE,
+    ERROR_CONVERT_DATA_TYPE,
+)
 
 _LOGGER = logging.getLogger("spaceone")
 
@@ -32,7 +36,7 @@ class StandardManager(ParseManager):
             "rule": self._get_rule(raw_data),
             "image_url": self._get_value_from_alerts(raw_data, "panelURL"),
             "resource": {},
-            "description": raw_data.get("message", ""),
+            "description": self._get_message(raw_data),
             "occurred_at": self.convert_to_iso8601(
                 self._get_value_from_alerts(raw_data, "startsAt")
             ),
@@ -78,6 +82,22 @@ class StandardManager(ParseManager):
 
         return severity_flag
 
+    def _get_message(self, raw_data: dict) -> str:
+        message = raw_data.get("message", "")
+        no_value_data = re.search(r"\[no value\]", message)
+        if no_value_data:
+            return "DatasourceNoData"
+        else:
+            filtered_message = self.__remove_keys(
+                message, ["Annotations", "Source", "Silence"]
+            )
+            return filtered_message
+
+    @staticmethod
+    def __remove_keys(text: str, keys: List[str]) -> str:
+        pattern = r"|".join(rf"{key}:\s+.*" for key in keys)
+        return re.sub(pattern, "", text, flags=re.MULTILINE)
+
     def get_additional_info(self, raw_data: dict) -> dict:
         additional_info = {}
         for label in raw_data.get("commonLabels", {}).keys():
@@ -108,8 +128,7 @@ class StandardManager(ParseManager):
             title = re.sub(
                 "[\[+[a-zA-Z]+\:+[0-9]+\,+.+[a-zA-Z]+\:+[0-9]+\] ", "", title
             )
-
-        except Exception as e:
+        except Exception:
             ERROR_CONVERT_TITLE(title)
 
         return title
@@ -118,7 +137,6 @@ class StandardManager(ParseManager):
         try:
             eval_matches = utils.dump_json(eval_matches)
             return eval_matches
-
         except Exception as e:
             raise ERROR_CONVERT_DATA_TYPE(field=e)
 
