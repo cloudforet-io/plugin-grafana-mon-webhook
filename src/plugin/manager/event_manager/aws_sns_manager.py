@@ -34,7 +34,6 @@ class AWSSNSManager(ParseManager):
             "rule": "",
             "image_url": raw_data.get("SubscribeURL", ""),
             "resource": {},
-            # "description": raw_data.get("Message"),
             "description": self._get_message(raw_data),
             "occurred_at": self.convert_to_iso8601(raw_data.get("Timestamp")),
             "additional_info": self.get_additional_info(raw_data),
