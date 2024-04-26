@@ -84,6 +84,7 @@ class StandardManager(ParseManager):
 
     def _get_message(self, raw_data: dict) -> str:
         message = utils.get_dict_value(raw_data, "message")
+
         no_value_data = re.search(r"\[no value\]", message)
         if no_value_data:
             return "DatasourceNoData"
@@ -91,6 +92,19 @@ class StandardManager(ParseManager):
             filtered_message = self.__remove_keys(
                 message, ["Annotations", "Source", "Silence"]
             )
+            alerts = utils.get_dict_value(raw_data, "alerts")
+            filtered_message = re.sub(r"\n{3,}", "\n\n", filtered_message)
+
+            filtered_message += "ValueString: \n"
+            for alert in alerts:
+                value_string = utils.get_dict_value(alert, "valueString")
+                elements = value_string.split(", ")
+
+                for element in elements:
+                    filtered_message += f"- {element}\n"
+
+                filtered_message += "\n"
+
             return filtered_message
 
     @staticmethod
