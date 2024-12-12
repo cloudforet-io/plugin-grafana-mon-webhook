@@ -1,3 +1,4 @@
 spaceone-api
 spaceone-monitoring
+regex
 
