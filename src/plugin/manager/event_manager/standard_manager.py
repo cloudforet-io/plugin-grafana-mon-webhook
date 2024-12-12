@@ -1,16 +1,17 @@
-import logging
 import hashlib
-import re
-from typing import Union, List
+import logging
 from datetime import datetime
+from typing import Union, List
 
+import regex
 from spaceone.core import utils
-from plugin.manager.event_manager import ParseManager
+
 from plugin.error import (
     ERROR_REQUIRED_FIELDS,
     ERROR_CONVERT_TITLE,
     ERROR_CONVERT_DATA_TYPE,
 )
+from plugin.manager.event_manager import ParseManager
 
 _LOGGER = logging.getLogger("spaceone")
 
@@ -85,7 +86,7 @@ class StandardManager(ParseManager):
     def _get_message(self, raw_data: dict) -> str:
         message = utils.get_dict_value(raw_data, "message")
 
-        no_value_data = re.search(r"\[no value\]", message)
+        no_value_data = regex.search(r"\[no value\]", message)
         if no_value_data:
             return "DatasourceNoData"
         else:
@@ -93,7 +94,7 @@ class StandardManager(ParseManager):
                 message, ["Annotations", "Source", "Silence"]
             )
             alerts = utils.get_dict_value(raw_data, "alerts")
-            filtered_message = re.sub(r"\n{3,}", "\n\n", filtered_message)
+            filtered_message = regex.sub(r"\n{3,}", "\n\n", filtered_message)
 
             filtered_message += "ValueString: \n"
             for alert in alerts:
@@ -110,7 +111,7 @@ class StandardManager(ParseManager):
     @staticmethod
     def __remove_keys(text: str, keys: List[str]) -> str:
         pattern = r"|".join(rf"{key}:\s+.*" for key in keys)
-        return re.sub(pattern, "", text, flags=re.MULTILINE)
+        return regex.sub(pattern, "", text, flags=regex.MULTILINE)
 
     def get_additional_info(self, raw_data: dict) -> dict:
         additional_info = {}
@@ -138,10 +139,8 @@ class StandardManager(ParseManager):
         :return:
         """
         try:
-            title = re.sub("\[[FIRING|RESOLVED]+\:+[0-9]+\] ", "", title)
-            title = re.sub(
-                "[\[+[a-zA-Z]+\:+[0-9]+\,+.+[a-zA-Z]+\:+[0-9]+\] ", "", title
-            )
+            title = regex.sub(r"\[(FIRING|RESOLVED):\d+\]\s", "", title)
+            title = regex.sub(r"\[([a-zA-Z]+:\d+,\s*[a-zA-Z]+:\d+)\]\s", "", title)
         except Exception:
             ERROR_CONVERT_TITLE(title)
 
