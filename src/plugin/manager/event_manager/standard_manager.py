@@ -139,7 +139,9 @@ class StandardManager(ParseManager):
         :return:
         """
         try:
-            title = regex.sub(r"\[(FIRING|RESOLVED):\d+\]\s", "", title)
+            title = regex.sub(
+                r"\[(FIRING|RESOLVED):(\d+),? ?(FIRING|RESOLVED)?:?(\d+)?\]", "", title
+            )
             title = regex.sub(r"\[([a-zA-Z]+:\d+,\s*[a-zA-Z]+:\d+)\]\s", "", title)
         except Exception:
             ERROR_CONVERT_TITLE(title)
